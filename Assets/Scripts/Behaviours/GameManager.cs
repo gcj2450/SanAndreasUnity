@@ -90,11 +90,11 @@ namespace SanAndreasUnity.Behaviours {
 
 
 			// Fix cursor state if it has been 'broken', happens eg. with zoom gestures in the editor in macOS
-			if (CursorLocked && ((Cursor.lockState != CursorLockMode.Locked) || (Cursor.visible)))
-			{
-				Cursor.lockState = CursorLockMode.Locked;
-				Cursor.visible = false;
-			}
+			//if (CursorLocked && ((Cursor.lockState != CursorLockMode.Locked) || (Cursor.visible)))
+			//{
+			//	Cursor.lockState = CursorLockMode.Locked;
+			//	Cursor.visible = false;
+			//}
 
 
 		}

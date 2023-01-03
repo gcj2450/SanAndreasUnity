@@ -18,15 +18,36 @@ namespace SanAndreasUnity.Importing.Items.Placements
         }
     }
 
+    /// <summary>
+    /// 可放置的实例
+    /// </summary>
     [Section("inst")]
     public class Instance : Placement
     {
+        /// <summary>
+        /// 物体ID
+        /// </summary>
         public readonly int ObjectId;
+        /// <summary>
+        /// LOD几何体
+        /// </summary>
         public readonly string LodGeometry;
+        /// <summary>
+        /// Cell ID 
+        /// </summary>
         public readonly int CellId;
         public int InteriorLevel => this.CellId & 0xff;
+        /// <summary>
+        /// 位置
+        /// </summary>
         public readonly UnityEngine.Vector3 Position;
+        /// <summary>
+        /// 旋转
+        /// </summary>
         public readonly UnityEngine.Quaternion Rotation;
+        /// <summary>
+        /// LOD 索引
+        /// </summary>
         public readonly int LodIndex;
 
         public Instance LodInstance { get; internal set; }

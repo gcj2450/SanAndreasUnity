@@ -1,9 +1,12 @@
 ﻿using SanAndreasUnity.Importing.Archive;
 using SanAndreasUnity.Importing.Items.Placements;
+using SanAndreasUnity.Importing.RenderWareStream;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using UnityEngine;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 namespace SanAndreasUnity.Importing.Items
 {
@@ -52,6 +55,8 @@ namespace SanAndreasUnity.Importing.Items
                             break;
 
                         case "ipl":
+                            //country.ipl数据：18395, cs_lodroads04, 0, -2930.242188, -1548.007813, 10.25, 0, 0, -0.7064119577, 0.7078009248, -1
+                            Debug.Log($"gcj: Item.ReadLoadList ReadIpl: {args}");
                             ReadIpl(args);
                             break;
                     }
@@ -77,15 +82,29 @@ namespace SanAndreasUnity.Importing.Items
 
         public static void ReadIpl(string path)
         {
-            var file = new ItemFile<Placement>(ArchiveManager.GetCaseSensitiveFilePath(Path.GetFileName(path)));
+            //读取data/maps/下所有的.ipl文件
+            Debug.Log($"gcj: Readlpl {path}");
             
+            //path的值示例：data/maps/country\countN2.ipl
+            //Path.GetFileName(path)：countN2.ipl
+            //ArchiveManager.GetCaseSensitiveFilePath(Path.GetFileName(path))：D:\Program Files (x86)\10150500\data\maps\country\countn2.ipl
+            
+            //Debug.Log($"Path.GetFileName(path):{Path.GetFileName(path)},  ArchiveManager.GetCaseSensitiveFilePath: {ArchiveManager.GetCaseSensitiveFilePath(Path.GetFileName(path))}");
+
+            var file = new ItemFile<Placement>(ArchiveManager.GetCaseSensitiveFilePath(Path.GetFileName(path)));
+
+            //DATA/MAP.ZON
+            //DATA/INFO.ZON
             foreach (var zone in file.GetSection<Placements.Zone>("zone"))
             {
+                Debug.Log($"gcj: Readipl: _zones.Add zone: {zone.Name}");
                 _zones.Add(zone);
             }
 
+            //商场等传送点
             foreach (var enex in file.GetSection<EntranceExit>("enex"))
             {
+                Debug.Log($"gcj: Readipl: _enexes.Add enex: {enex.Name}");
                 _enexes.Add(enex);
             }
 
@@ -115,7 +134,7 @@ namespace SanAndreasUnity.Importing.Items
             }
 
             list.ResolveLod();
-
+            Debug.Log($"gcj:Item ReadIpl Instance list: " + list.Count);
             int lastCell = -1;
             foreach (var inst in list)
             {

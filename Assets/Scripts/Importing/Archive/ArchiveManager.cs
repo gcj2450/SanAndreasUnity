@@ -35,6 +35,12 @@ namespace SanAndreasUnity.Importing.Archive
             return relative.Aggregate(Config.GamePath, Path.Combine).Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
         }
 
+        /// <summary>
+        /// 根据文件名获取已经加载的完整文件路径
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static string GetCaseSensitiveFilePath(string fileName)
         {
@@ -53,6 +59,9 @@ namespace SanAndreasUnity.Importing.Archive
             return ArchiveManager.GetCaseSensitiveFilePath(Path.GetFileName(path));
         }
 
+        /// <summary>
+        /// 已经加载的档案文件
+        /// </summary>
         private static readonly List<IArchive> _sLoadedArchives = new List<IArchive>();
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -75,6 +84,11 @@ namespace SanAndreasUnity.Importing.Archive
                 .ToList();
         }
 
+        /// <summary>
+        /// 加载游戏目录下的所有档案文件
+        /// </summary>
+        /// <param name="dirPath"></param>
+        /// <returns></returns>
 		[MethodImpl(MethodImplOptions.Synchronized)]
         public static LooseArchive LoadLooseArchive(string dirPath)
         {
@@ -83,6 +97,11 @@ namespace SanAndreasUnity.Importing.Archive
             return arch;
         }
 
+        /// <summary>
+        /// 根据文件路径获取加载档案文件
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
 		[MethodImpl(MethodImplOptions.Synchronized)]
         public static ImageArchive LoadImageArchive(string filePath)
         {
@@ -97,13 +116,22 @@ namespace SanAndreasUnity.Importing.Archive
             return _sLoadedArchives.Any(x => x.ContainsFile(name));
         }
 
+        /// <summary>
+        /// 获取指定后缀名的文件
+        /// </summary>
+        /// <param name="ext"></param>
+        /// <param name="fileNames"></param>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void GetFileNamesWithExtension(string ext, List<string> fileNames)
         {
             foreach (var archive in _sLoadedArchives)
                 fileNames.AddRange(archive.GetFileNamesWithExtension(ext));
         }
-
+        /// <summary>
+        /// 获取指定后缀名的文件列表
+        /// </summary>
+        /// <param name="ext"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static List<string> GetFileNamesWithExtension(string ext)
         {
@@ -112,6 +140,11 @@ namespace SanAndreasUnity.Importing.Archive
             return list;
         }
 
+        /// <summary>
+        /// 获取指定后缀的文件列表
+        /// </summary>
+        /// <param name="ext"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static List<string> GetFilePathsFromLooseArchivesWithExtension(string ext)
         {

@@ -23,10 +23,19 @@ namespace SanAndreasUnity.Importing.Items
         }
     }
 
+    /// <summary>
+    /// Item抽象类
+    /// </summary>
     public abstract class ItemBase
     {
+        /// <summary>
+        /// 部件数组
+        /// </summary>
         private readonly string[] _parts;
 
+        /// <summary>
+        /// 部件数
+        /// </summary>
         public int Parts { get { return _parts.Length; } }
 
         protected ItemBase(string line, bool commaSeparated = true)
@@ -95,17 +104,29 @@ namespace SanAndreasUnity.Importing.Items
         }
     }
 
+    /// <summary>
+    /// 定义
+    /// </summary>
     public abstract class Definition : ItemBase
     {
         protected Definition(string line, bool commaSeparated = true)
             : base(line, commaSeparated) { }
     }
 
+    /// <summary>
+    /// 物体基类接口
+    /// </summary>
     public interface IObjectDefinition
     {
+        /// <summary>
+        /// 物体ID
+        /// </summary>
         int Id { get; }
     }
 
+    /// <summary>
+    /// 可放置的物体
+    /// </summary>
     public abstract class Placement : ItemBase
     {
         protected Placement(string line, bool commaSeparated = true)

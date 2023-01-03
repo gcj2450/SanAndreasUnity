@@ -1,5 +1,8 @@
 ﻿namespace SanAndreasUnity.Importing.Items.Definitions
 {
+    /// <summary>
+    /// 计时出现的物体
+    /// </summary>
     [Section("tobj")]
     public class TimeObjectDef : Definition, ISimpleObjectDefinition
     {
@@ -9,7 +12,13 @@
         public int MeshCount { get; }
         public float DrawDist { get; }
         public ObjectFlag Flags { get; }
+        /// <summary>
+        /// 显示的小时数
+        /// </summary>
         public int TimeOnHours { get; }
+        /// <summary>
+        /// 隐藏的小时数
+        /// </summary>
         public int TimeOffHours { get; }
 
         public TimeObjectDef(string line)

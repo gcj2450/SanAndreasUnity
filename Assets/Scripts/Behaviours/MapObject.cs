@@ -38,7 +38,7 @@ namespace SanAndreasUnity.Behaviours
             }
             else
             {
-                _sNoiseTex.Resize(width, height);
+                _sNoiseTex.Reinitialize(width, height);
             }
 
             var rand = new System.Random(0x54e03b19);
@@ -69,6 +69,12 @@ namespace SanAndreasUnity.Behaviours
 
         public Vector3 CachedPosition { get; private set; }
 
+        /// <summary>
+        ///Instantiate生成一个Cell的子物体
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="prefab"></param>
+        /// <returns></returns>
         protected static T Create<T>(GameObject prefab)
             where T : MapObject
         {

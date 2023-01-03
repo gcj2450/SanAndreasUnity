@@ -15,11 +15,23 @@ namespace SanAndreasUnity.Behaviours.World
     public class Cell : UGameCore.Utilities.SingletonComponent<Cell>
     {
 	    private Dictionary<Instance, StaticGeometry> m_insts = new Dictionary<Instance, StaticGeometry>();
+		/// <summary>
+		/// 静态几何体实例字典
+		/// </summary>
 		public IReadOnlyDictionary<Instance, StaticGeometry> StaticGeometries => m_insts;
+		/// <summary>
+		/// 静态物体数
+		/// </summary>
         public int NumStaticGeometries => m_insts.Count;
+		/// <summary>
+		/// 车辆数组
+		/// </summary>
 		private MapObject[] m_cars;
         private List<EntranceExitMapObject> m_enexes;
 
+		/// <summary>
+		/// 19个Cell Ids
+		/// </summary>
 		public IReadOnlyList<int> CellIds { get; } = Enumerable.Range(0, 19).ToList();
 
 		public bool ignoreLodObjectsWhenInitializing = false;
@@ -28,6 +40,9 @@ namespace SanAndreasUnity.Behaviours.World
 
         public Camera PreviewCamera;
 
+		/// <summary>
+		/// 注视点管理器
+		/// </summary>
         public FocusPointManager<MapObject> FocusPointManager { get; private set; }
 
 		private struct AreaWithDistance
@@ -36,7 +51,10 @@ namespace SanAndreasUnity.Behaviours.World
 			public float distance;
 		}
 
-		private class AreaWithDistanceComparer : IComparer<AreaWithDistance>
+        /// <summary>
+        /// AreaWithDistance比较器
+        /// </summary>
+        private class AreaWithDistanceComparer : IComparer<AreaWithDistance>
 		{
 			public int Compare(AreaWithDistance a, AreaWithDistance b)
 			{
@@ -86,12 +104,20 @@ namespace SanAndreasUnity.Behaviours.World
 
 		public float drawDistanceMultiplier = 1f;
 
+		/// <summary>
+		/// 默认地图尺寸6000*6000
+		/// </summary>
 		public int WorldSize => 6000; // current world size - in the future, this will be configurable
 		public static int DefaultWorldSize => 6000;
-
+		/// <summary>
+		/// 每层绘制距离
+		/// </summary>
         public float[] drawDistancesPerLayers = new float[] { 301, 801, 1501 };
 
         private WorldSystemWithDistanceLevels<MapObject> _worldSystem;
+		/// <summary>
+		/// 带距离层级的世界系统
+		/// </summary>
         public WorldSystemWithDistanceLevels<MapObject> WorldSystem => _worldSystem;
 
         public uint yWorldSystemSize = 25000;
@@ -107,18 +133,38 @@ namespace SanAndreasUnity.Behaviours.World
 
         public GameObject mapObjectActivatorPrefab;
 
+		/// <summary>
+		/// 静态几何体预制体
+		/// </summary>
         public GameObject staticGeometryPrefab;
 
+		/// <summary>
+		/// 传送点预制体
+		/// </summary>
         public GameObject enexPrefab;
-
+		/// <summary>
+		/// 光源预制体
+		/// </summary>
         public GameObject lightSourcePrefab;
 
         public float lightScaleMultiplier = 1f;
 
+		/// <summary>
+		/// 红灯持续时间
+		/// </summary>
         public float redTrafficLightDuration = 7;
+		/// <summary>
+		/// 黄灯持续时间
+		/// </summary>
         public float yellowTrafficLightDuration = 2;
+		/// <summary>
+		/// 绿灯持续时间
+		/// </summary>
         public float greenTrafficLightDuration = 7;
 
+		/// <summary>
+		/// 导航网格不可走的区域
+		/// </summary>
 		public static int NavMeshNotWalkableArea => NavMesh.GetAreaFromName("Not Walkable");
 
 		private NavMeshData _navMeshData = null;
@@ -158,6 +204,9 @@ namespace SanAndreasUnity.Behaviours.World
 			return $"{inst.ObjectId}_{inst.Position}_{inst.Rotation}";
 		}
 
+		/// <summary>
+		/// 资源导出时调用的初始化全部
+		/// </summary>
 		public void InitAll()
         {
 			this.CreateStaticGeometry();
@@ -168,11 +217,18 @@ namespace SanAndreasUnity.Behaviours.World
 			this.FinalizeLoad();
         }
 
+		/// <summary>
+		/// 加载世界的第一步，
+		/// 创建静态几何体
+		/// </summary>
 		public void CreateStaticGeometry ()
 		{
+			//19个
+			Debug.Log("gcj: CellIds.ToArray(): " + CellIds.ToArray().Length);
 
 			var placements = Item.GetPlacements<Instance>(CellIds.ToArray());
-
+            //50769个 placements.Count()
+            Debug.Log($"gcj:Cell CreateStaticGeometry: placements Count: {placements.Count()}");
 			// find existing objects
 
 			var existingObjects = new Dictionary<string, object>(this.transform.childCount);
@@ -276,11 +332,20 @@ namespace SanAndreasUnity.Behaviours.World
 			Debug.Log($"Num static geometries {m_insts.Count}, existing {numExistingObjects}, reused {numObjectsReused}, deleted {numDeletedObjects}, creation time {totalCreationTime:F3} s, world system init time {worldSystemInitTime:F3} s");
 		}
 
-		public void InitStaticGeometry ()
+        /// <summary>
+        /// 初始化静态几何体
+        /// Cell下有51145个子物体=50769个静态物体+376个传送点
+        /// </summary>
+        public void InitStaticGeometry ()
 		{
+            //这里会将静态物体StaticGeometry生成出来
+            //这个值是m_insts.Count=50769
+            Debug.Log($"gcj:Cell.InitStaticGeometry m_insts.Count: {m_insts.Count}");
 			foreach (var inst in m_insts)
 			{
+				Debug.Log($"gcj: inst.Value.name: {inst.Value.gameObject.name}");
 				var staticGeometry = inst.Value;
+				//初始化StaticGeometry
 				staticGeometry.Initialize(inst.Key, m_insts);
 				_worldSystem.AddObjectToArea(
 					staticGeometry.transform.position,

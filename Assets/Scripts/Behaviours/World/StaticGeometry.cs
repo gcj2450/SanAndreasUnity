@@ -17,6 +17,10 @@ namespace SanAndreasUnity.Behaviours.World
 {
     public class StaticGeometry : MapObject
     {
+        /// <summary>
+        /// 使用Cell的staticGeometryPrefab生成一个StaticGeometry
+        /// </summary>
+        /// <returns></returns>
         public static StaticGeometry Create()
         {
 	        if (!s_registeredTimeChangeCallback)
@@ -28,7 +32,13 @@ namespace SanAndreasUnity.Behaviours.World
 	        return Create<StaticGeometry>(Cell.Instance.staticGeometryPrefab);
         }
 
+		/// <summary>
+		/// 计时出现的物体列表
+		/// </summary>
         private static List<StaticGeometry> s_timedObjects = new List<StaticGeometry>();
+        /// <summary>
+        /// 计时出现的物体列表
+        /// </summary>
         public static IReadOnlyList<StaticGeometry> TimedObjects => s_timedObjects;
 
         public Instance Instance { get; private set; }
@@ -206,6 +216,7 @@ namespace SanAndreasUnity.Behaviours.World
 				this.AddRenderingParts(geoms);
 
 			Profiler.BeginSample("Attach collision", this);
+			Debug.Log($"gcj:Attach collision: {this.ObjectDefinition.ModelName}");
 			Importing.Conversion.CollisionModel.Load(this.ObjectDefinition.ModelName, this.transform, false);
 			Profiler.EndSample();
 

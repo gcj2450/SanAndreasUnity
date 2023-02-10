@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SanAndreasUnity.Importing.GXT;
+using System.Net.Security;
 
 namespace SanAndreasUnity.Behaviours
 {
@@ -89,8 +90,8 @@ namespace SanAndreasUnity.Behaviours
             LoadingStep[] steps = new LoadingStep[] {
 				//是否加载图片
 				new LoadingStep ( StepConfigure, "Configuring", 0f ),
-				//读取GTA游戏路径
-				new LoadingStep ( StepSelectGTAPath(), "Select path to GTA", 0.0f ),
+				//读取GTA游戏路径,写死路径了，注释掉：D:\Program Files (x86)\10150500
+				//new LoadingStep ( StepSelectGTAPath(), "Select path to GTA", 0.0f ),
 				//读取档案文件路径
 				new LoadingStep ( StepLoadArchives, "Loading archives", 1.7f ),
 				//加载启动画面
@@ -105,7 +106,7 @@ namespace SanAndreasUnity.Behaviours
 				new LoadingStep ( StepLoadCollision, "Loading collision files", 0.9f ),
                 new LoadingStep ( StepLoadItemInfo, "Loading item info", 2.4f ),
                 new LoadingStep ( StepLoadHandling, "Loading handling", 0.01f ),
-				//已经被注释掉了
+				//已经注释掉了，已经被官方注释掉了
 				//new LoadingStep ( () => { throw new System.Exception ("testing error handling"); }, "testing error handling", 0.01f ),
 				new LoadingStep ( StepLoadAnimGroups, "Loading animation groups", 0.02f ),
                 new LoadingStep ( StepLoadCarColors, "Loading car colors", 0.04f ),
@@ -345,9 +346,11 @@ namespace SanAndreasUnity.Behaviours
         private static IEnumerator StepSelectGTAPath()
         {
             yield return null;
-
+            
             string path = Config.GetPath(Config.const_game_dir);
             Debug.Log("gcj:AAAAAAAAAAAAAAApath: " + path);
+            if (string.IsNullOrEmpty(path))
+                path = Application.persistentDataPath + "/10150500/";
             if (string.IsNullOrEmpty(path))
             {
                 // path is not set

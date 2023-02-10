@@ -10,9 +10,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using UnityEditor.Formats.Fbx.Exporter.Visitors;
 using System.Security.Permissions;
-using UnityEngine.Networking;
-using System.Net.NetworkInformation;
-using System.Runtime.Remoting.Contexts;
+using System;
+using Object = UnityEngine.Object;
 
 [assembly: InternalsVisibleTo("Unity.Formats.Fbx.Editor.Tests")]  
 [assembly: InternalsVisibleTo("Unity.ProBuilder.AddOns.Editor")]  
@@ -602,7 +601,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
         /// <param name="unityPropName">Unity property name, e.g. "_MainTex".</param>
         /// <param name="fbxMaterial">Fbx material.</param>
         /// <param name="fbxPropName">Fbx property name, e.g. <c>FbxSurfaceMaterial.sDiffuse</c>.</param>
-        internal bool ExportTexture (string objName, Material unityMaterial, string unityPropName,
+        internal bool ExportTexture (Material unityMaterial, string unityPropName,
                                     FbxSurfaceMaterial fbxMaterial, string fbxPropName)
         {
             if (!unityMaterial) {
@@ -618,31 +617,10 @@ namespace UnityEditor.Formats.Fbx.Exporter
                 return false;
             }
 
-            // 将图片存起来
+            // Find its filename
             var textureSourceFullPath = AssetDatabase.GetAssetPath(unityTexture);
             if (string.IsNullOrEmpty(textureSourceFullPath)) {
-                string folderPath = Application.dataPath + "/FBXExporter/Textures/";
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
-                string fileName = folderPath + objName + unityPropName + ".png";
-
-                Texture2D tex;
-                int sourceMipLevel = 0;
-                Texture2D sourceTexture=(Texture2D)unityTexture;
-                Color[] srcPixels = sourceTexture.GetPixels(sourceMipLevel);
-                //newTextureByPixels = new Texture2D(sourceTexture.width, sourceTexture.height);
-                tex = new Texture2D(sourceTexture.width, sourceTexture.height, sourceTexture.format, false);
-                tex.SetPixels(srcPixels);
-                tex.Apply();
-
-                byte[] bytes = tex.EncodeToPNG();
-                FileStream file = File.Open(fileName, FileMode.Create);
-                BinaryWriter writer = new BinaryWriter(file);
-                writer.Write(bytes);
-                file.Close();
-                textureSourceFullPath= fileName;
+                return false;
             }
 
             // get absolute filepath to texture
@@ -691,7 +669,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
         /// <summary>
         /// Export (and map) a Unity PBS material to FBX classic material
         /// </summary>
-        internal bool ExportMaterial (string objName,Material unityMaterial, FbxScene fbxScene, FbxNode fbxNode)
+        internal bool ExportMaterial (Material unityMaterial, FbxScene fbxScene, FbxNode fbxNode)
         {
             if (!unityMaterial) {
                 unityMaterial = DefaultMaterial;
@@ -744,11 +722,11 @@ namespace UnityEditor.Formats.Fbx.Exporter
             }
 
             // Export the textures from Unity standard materials to FBX.
-            ExportTexture (objName,unityMaterial, "_MainTex", fbxMaterial, FbxSurfaceMaterial.sDiffuse);
-            ExportTexture (objName,unityMaterial, "_MaskTex", fbxMaterial, FbxSurfaceMaterial.sEmissive);
-            ExportTexture (objName,unityMaterial, "_BumpMap", fbxMaterial, FbxSurfaceMaterial.sNormalMap);
+            ExportTexture (unityMaterial, "_MainTex", fbxMaterial, FbxSurfaceMaterial.sDiffuse);
+            ExportTexture (unityMaterial, "_EmissionMap", fbxMaterial, FbxSurfaceMaterial.sEmissive);
+            ExportTexture (unityMaterial, "_BumpMap", fbxMaterial, FbxSurfaceMaterial.sNormalMap);
             if (specular) {
-                ExportTexture (objName,unityMaterial, "_SpecGlossMap", fbxMaterial, FbxSurfaceMaterial.sSpecular);
+                ExportTexture (unityMaterial, "_SpecGlossMap", fbxMaterial, FbxSurfaceMaterial.sSpecular);
             }
 
             MaterialMap.Add (unityID, fbxMaterial);
@@ -829,10 +807,10 @@ namespace UnityEditor.Formats.Fbx.Exporter
         ///
         /// Use fbxNode.GetMesh() to access the exported mesh.
         /// </summary>
-        internal bool ExportMesh (string objName, Mesh mesh, FbxNode fbxNode, Material[] materials = null)
+        internal bool ExportMesh (Mesh mesh, FbxNode fbxNode, Material[] materials = null)
         {
             var meshInfo = new MeshInfo(mesh, materials);
-            return ExportMesh(objName,meshInfo, fbxNode);
+            return ExportMesh(meshInfo, fbxNode);
         }
 
         /// <summary>
@@ -843,7 +821,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
         /// <summary>
         /// Exports a unity mesh and attaches it to the node as an FbxMesh.
         /// </summary>
-        bool ExportMesh (string objName,MeshInfo meshInfo, FbxNode fbxNode)
+        bool ExportMesh (MeshInfo meshInfo, FbxNode fbxNode)
         {
             if (!meshInfo.IsValid) {
                 return false;
@@ -923,7 +901,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
 
             // Set up materials per submesh.
             foreach (var mat in meshInfo.Materials) {
-                ExportMaterial (objName,mat, fbxScene, fbxNode);
+                ExportMaterial (mat, fbxScene, fbxNode);
             }
             AssignLayerElementMaterial (fbxMesh, meshInfo.mesh, meshInfo.Materials.Length);
 
@@ -986,7 +964,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
             var meshInfo = new MeshInfo(unitySkin.sharedMesh, unitySkin.sharedMaterials);
 
             FbxMesh fbxMesh = null;
-            if (ExportMesh(unityGo.name,meshInfo, fbxNode))
+            if (ExportMesh(meshInfo, fbxNode))
             {
                 fbxMesh = fbxNode.GetMesh();
             }
@@ -1488,7 +1466,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
                     else
                     {
                         // create new material
-                        ExportMaterial(unityGo.name, mat, fbxScene, fbxNode);
+                        ExportMaterial(mat, fbxScene, fbxNode);
                     }
                 }
             }
@@ -2998,7 +2976,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
                         // export only what is necessary for exporting blendshape animation
                         var unitySkin = go.GetComponent<SkinnedMeshRenderer>();
                         var meshInfo = new MeshInfo(unitySkin.sharedMesh, unitySkin.sharedMaterials);
-                        ExportMesh(unityGO.name, meshInfo, node);
+                        ExportMesh(meshInfo, node);
                     }
                 }
             }
@@ -4065,11 +4043,68 @@ namespace UnityEditor.Formats.Fbx.Exporter
         [MenuItem (MenuItemName, false, 30)]
         static void OnContextItem (MenuCommand command)
         {
-            //if (Selection.objects.Length <= 0) {
-            //    DisplayNoSelectionDialog ();
-            //    return;
-            //}
+            if (Selection.objects.Length <= 0) {
+                DisplayNoSelectionDialog ();
+                return;
+            }
+            ReplaceMats();
+
             OnExport ();
+        }
+
+        public static void ReplaceMats()
+        {
+            GameObject[] objs = Selection.gameObjects;
+            foreach (var item in objs)
+            {
+                Material[] mats = item.GetComponent<MeshRenderer>().sharedMaterials;
+                List<Material> projetMats = new List<Material>();
+                for (int i = 0, cnt = mats.Length; i < cnt; i++)
+                {
+                    string tmpName = mats[i].name.Substring(mats[i].name.LastIndexOf('/') + 1);
+                    if (string.IsNullOrEmpty(tmpName))
+                    {
+                        // 最后一个分隔符位置
+                        int lastIndex = mats[i].name.LastIndexOf("/");
+                        // 倒数第二个分隔符位置
+                        int secondLastIndex = mats[i].name.LastIndexOf("/", lastIndex - 1);
+                        // 截取文件夹名称
+                        tmpName= mats[i].name.Substring(secondLastIndex + 1, lastIndex);
+                        Debug.Log("AA: " + tmpName);
+                    }
+                    string assetName = "Assets/Materials/" + tmpName + ".mat";
+                    Debug.Log(tmpName + "__" + assetName);
+                    Material projectMat = (Material)AssetDatabase.LoadAssetAtPath<Material>(assetName);
+                    if (projectMat == null)
+                    {
+                        Debug.Log("not find mat: " + tmpName);
+                        projectMat = new Material(Shader.Find("GTA/Standard"));
+                        tmpName = tmpName.Replace("/", "");
+
+                        projectMat.name = tmpName;
+                        AssetDatabase.CreateAsset(projectMat, assetName);
+                        Debug.Log("CreateMat: " + assetName);
+                    }
+
+                    projectMat.SetTexture("_MaskTex", projectMat.GetTexture("_MainTex"));
+
+                    projectMat.SetFloat("_Ambient", mats[i].GetFloat("_Ambient"));
+                    projectMat.SetFloat("_Diffuse", mats[i].GetFloat("_Diffuse"));
+                    projectMat.SetFloat("_Specular", mats[i].GetFloat("_Specular"));
+                    projectMat.SetFloat("_Cutout", mats[i].GetFloat("_Cutout"));
+
+                    projectMat.SetInt("_ZWrite", mats[i].GetInt("_ZWrite"));
+                    projectMat.SetInt("_SrcBlend", mats[i].GetInt("_SrcBlend"));
+                    projectMat.SetInt("_DstBlend", mats[i].GetInt("_DstBlend"));
+
+                    projectMat.renderQueue = mats[i].renderQueue;
+
+                    projectMat.SetInt("_Cull", mats[i].GetInt("_Cull"));
+                    projetMats.Add(projectMat);
+                }
+
+                item.GetComponent<MeshRenderer>().sharedMaterials = projetMats.ToArray();
+            }
         }
 
         /// <summary>
@@ -4465,7 +4500,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
             if (meshFilter) {
                 var renderer = gameObject.GetComponent<Renderer>();
                 var materials = renderer ? renderer.sharedMaterials : null;
-                return ExportMesh(gameObject.name, new MeshInfo(meshFilter.sharedMesh, materials), fbxNode);
+                return ExportMesh(new MeshInfo(meshFilter.sharedMesh, materials), fbxNode);
             } else {
                 var smr = defaultComponent as SkinnedMeshRenderer;
                 if (smr) {
@@ -4475,7 +4510,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
                         var mesh = new Mesh();
                         smr.BakeMesh(mesh);
                         var materials = smr.sharedMaterials;
-                        result = ExportMesh(gameObject.name, new MeshInfo(mesh, materials), fbxNode);
+                        result = ExportMesh(new MeshInfo(mesh, materials), fbxNode);
                         Object.DestroyImmediate(mesh);
                     }
                     return result;
@@ -4524,65 +4559,54 @@ namespace UnityEditor.Formats.Fbx.Exporter
             return basename + "." + extension;
         }
 
-        static GameObject[]getExpObjs()
+        public static void OnExport(Action<string> OnExportOK = null)
         {
-            GameObject root = GameObject.Find("World/Cell");
-            List<GameObject> expObjs = new List<GameObject>();
-            Transform[] objs = root.transform.GetComponentsInChildren<Transform>(false);
-            for (int i = 0,cnt= objs.Length; i < cnt; i++)
+            GameObject [] selectedGOs = Selection.GetFiltered<GameObject> (SelectionMode.TopLevel);
+
+            var toExport = ModelExporter.RemoveRedundantObjects(selectedGOs);
+            if (ExportSettings.instance.DisplayOptionsWindow)
             {
-                if (objs[i].transform.parent==root.transform)
-                {
-                    expObjs.Add(objs[i].gameObject);
-                }
+                ExportModelEditorWindow.Init(System.Linq.Enumerable.Cast<UnityEngine.Object>(toExport), isTimelineAnim: false);
+                return;
             }
-            return expObjs.ToArray();
-        }
-                
-        private static void OnExport ()
-        {
-            GameObject[] selectedGOs = getExpObjs();
 
-            foreach (var item in selectedGOs)
+            var filename = toExport.ToArray()[0].name;
+
+            //改为只保留第一个
+            //var filename = "";
+            //if (toExport.Count == 1)
+            //{
+            //    filename = toExport.ToArray()[0].name;
+            //}
+            //else
+            //{
+            //    filename = "Untitled";
+            //}
+            if (filename.Contains("(Clone)"))
             {
-                GameObject[] selItem = new GameObject[] { item };
-                var toExport = ModelExporter.RemoveRedundantObjects(selItem);
-                if (ExportSettings.instance.DisplayOptionsWindow)
-                {
-                    ExportModelEditorWindow.Init(System.Linq.Enumerable.Cast<UnityEngine.Object>(toExport), isTimelineAnim: false);
-                    return;
-                }
+                filename = filename.Replace("(Clone)", "");
+            }
+            var folderPath = ExportSettings.FbxAbsoluteSavePath;
+            var filePath = System.IO.Path.Combine(folderPath, filename + ".fbx");
 
-                var filename = "";
-                //if (toExport.Count == 1)
-                //{
-                //    filename = toExport.ToArray()[0].name;
-                //}
-                //else
-                {
-                    filename = item.name;
-                }
+            if (System.IO.File.Exists(filePath))
+            {
+                Debug.LogErrorFormat("{0}: Failed to export to {1}, file already exists", PACKAGE_UI_NAME, filePath);
+                return;
+            }
 
-                var folderPath = ExportSettings.FbxAbsoluteSavePath;
-                var filePath = System.IO.Path.Combine(folderPath, filename + ".fbx");
-
-                if (System.IO.File.Exists(filePath))
-                {
-                    Debug.LogErrorFormat("{0}: Failed to export to {1}, file already exists", PACKAGE_UI_NAME, filePath);
-                    return;
-                }
-
-                if (ExportObjects(filePath, toExport.ToArray(), ExportSettings.instance.ExportModelSettings.info) != null)
-                {
-                    // refresh the asset database so that the file appears in the
-                    // asset folder view.
-                    AssetDatabase.Refresh();
-                }
+            if (ExportObjects(filePath, toExport.ToArray(), ExportSettings.instance.ExportModelSettings.info) != null)
+            {
+                // refresh the asset database so that the file appears in the
+                // asset folder view.
+                AssetDatabase.Refresh();
+                if (OnExportOK != null)
+                    OnExportOK(filePath);
             }
         }
 
         [SecurityPermission(SecurityAction.LinkDemand)]
-        internal static string ExportObject (
+        public static string ExportObject (
             string filePath, 
             UnityEngine.Object root,
             IExportOptions exportOptions = null
@@ -4626,7 +4650,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
         /// </para>
         /// </summary>
         [SecurityPermission(SecurityAction.LinkDemand)]
-        internal static string ExportObjects (
+        public static string ExportObjects (
             string filePath,
             UnityEngine.Object[] objects = null,
             IExportOptions exportOptions = null,
@@ -4640,8 +4664,9 @@ namespace UnityEditor.Formats.Fbx.Exporter
                 EnsureDirectory (filePath);
                 fbxExporter.ExportOptions = exportOptions;
 
-                if (objects == null) {
-                    objects = Selection.objects;
+                if (objects == null)
+                {
+                    objects =Selection.objects;
                 }
 
                 if (exportData==null)

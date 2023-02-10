@@ -8,6 +8,9 @@ using UnityEngine.AI;
 namespace SanAndreasUnity.Behaviours.World
 {
 
+    /// <summary>
+    /// 传送点物体，继承自MapObject
+    /// </summary>
     public class EntranceExitMapObject : MapObject
     {
         static List<EntranceExitMapObject> _sAllActiveObjects = new List<EntranceExitMapObject>();

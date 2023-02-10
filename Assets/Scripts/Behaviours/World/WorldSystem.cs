@@ -862,6 +862,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         /// </summary>
         private void UpdateInternal()
         {
+            //Debug.Log($"gcj:_areasForUpdate.Count : {_areasForUpdate.Count}");
             // check areas that are marked for update
             for (int i = 0; i < _areasForUpdate.Count; i++)
             {

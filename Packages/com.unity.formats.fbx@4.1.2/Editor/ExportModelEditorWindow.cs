@@ -848,7 +848,6 @@ namespace UnityEditor.Formats.Fbx.Exporter
 
         [SecurityPermission(SecurityAction.LinkDemand)]
         protected override bool Export(){
-            Debug.Log("AAAAAAAAAAAAAA");
             if (string.IsNullOrEmpty (ExportFileName)) {
                 Debug.LogError ("FbxExporter: Please specify an fbx filename");
                 return false;
@@ -856,15 +855,40 @@ namespace UnityEditor.Formats.Fbx.Exporter
             var folderPath = ExportSettings.GetAbsoluteSavePath(FbxSavePaths[SelectedFbxPath]);
             var filePath = System.IO.Path.Combine (folderPath, ExportFileName + ".fbx");
 
-            if (!OverwriteExistingFile (filePath)) {
-                return false;
+            if (!System.IO.File.Exists(filePath))
+            {
+
+                if (!OverwriteExistingFile(filePath))
+                {
+                    return false;
+                }
+
+                if (ModelExporter.ExportObjects(filePath, GetToExport(), SettingsObject) != null)
+                {
+                    // refresh the asset database so that the file appears in the
+                    // asset folder view.
+                    AssetDatabase.Refresh();
+                }
             }
 
-            if (ModelExporter.ExportObjects (filePath, GetToExport(), SettingsObject) != null) {
-                // refresh the asset database so that the file appears in the
-                // asset folder view.
-                AssetDatabase.Refresh ();
+            //替换选中的模型Mesh=======================
+            GameObject[] objs = Selection.gameObjects;
+            GameObject obj=
+                (GameObject)AssetDatabase.LoadAssetAtPath < GameObject>("Assets/Models/" + ExportFileName + ".fbx");
+            if (obj==null)
+            {
+                Debug.Log("Not find fbx");
+                return true;
             }
+            int replaCount = 0;
+            for (int i = 0,cnt= objs.Length; i < cnt; i++)
+            {
+                objs[i].GetComponent<MeshFilter>().sharedMesh = obj.GetComponent<MeshFilter>().sharedMesh;
+                replaCount++;
+            }
+            Debug.Log("replaCount: " + replaCount);
+            //替换选中的模型Mesh End=======================
+
             return true;
         }
 

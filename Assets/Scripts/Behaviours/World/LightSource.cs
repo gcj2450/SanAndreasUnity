@@ -8,6 +8,12 @@ namespace SanAndreasUnity.Behaviours.World
     {
         public TwoDEffect.Light LightInfo { get; private set; }
 
+        /// <summary>
+        /// 创建一个Sprite作为灯光
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="lightInfo"></param>
+        /// <returns></returns>
         public static LightSource Create(
             Transform parent,
             TwoDEffect.Light lightInfo)

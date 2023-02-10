@@ -59,13 +59,47 @@ namespace SanAndreasUnity.Importing.Paths
 
     public struct PathNode : IEquatable<PathNode>
     {
+        /// <summary>
+        /// 位置 (XYZ)
+        /// </summary>
         public UnityEngine.Vector3 Position { get; set; }
         public int BaseLinkID { get; set; }
+
+        //信息数据，用于通过链接连接节点。Area ID始终与文件名中的数字相同，Node ID用于标识节点。
+        /// <summary>
+        /// 区域 ID（与文件名相同）
+        /// </summary>
         public int AreaID { get; set; }
+        /// <summary>
+        /// 节点 ID（递增 1）
+        /// </summary>
         public int NodeID { get; set; }
         public PathNodeId Id => new PathNodeId { AreaID = AreaID, NodeID = NodeID };
+        /// <summary>
+        /// 路径宽度，这用于修改路径的宽度。默认值为 0（零）。要将有符号字转换为浮点值，请将其除以 8。
+        /// </summary>
         public float PathWidth { get; set; }
         public int NodeType { get; set; } // enum
+
+        //LinkCount 定义了从 LinkID 递增的实体数。TrafficLevel 使用 4 个步骤：0 = full 1 = high 2 = medium 3 = low
+        //A 06 - 路障
+        //B 07 - 船
+        //C 08 - 仅限紧急车辆
+        //D 09 - 零/未使用
+        //E 10 - 未知，树林屋入口路径？
+        //F 11 - 零/未使用
+        //        G 12 - 不是公路
+        //H 13 - 是高速公路（PED 节点忽略，汽车从不为 11 或 00！）
+        //我 14 - 零
+        //J 15 - 零
+        //KM 16-19 - 生成概率（0x00 到 0x0F）[1]
+        //        O 20 - 路障？
+        //P 21 - 停车场
+        //Q 22 - 零
+        //R 23 - 路障？
+
+        // 24-31 - 零（未使用）
+
         public int LinkCount { get; set; }
         public PathNodeFlag Flags;
 
@@ -84,11 +118,29 @@ namespace SanAndreasUnity.Importing.Paths
         public static PathNode InvalidNode => new PathNode { AreaID = -1, NodeID = -1 };
     }
 
+    /// <summary>
+    /// 导航节点
+    /// </summary>
     public struct NavNode
     {
+        ///这是导航节点在世界坐标中的位置。要将带符号的字转换为浮点值，请将它们除以 8。
+        /// <summary>
+        /// 位置 (XY),
+        /// </summary>
         public UnityEngine.Vector2 Position { get; set; }
+        /// <summary>
+        /// 区域 ID
+        /// </summary>
         public int TargetAreaID { get; set; }
+        /// <summary>
+        /// 节点 ID
+        /// </summary>
         public int TargetNodeID { get; set; }
+
+        //这是指向上述目标节点的归一化向量，因此定义了路径段的总体方向。矢量分量由带符号的字节表示，其值在区间 [-100, 100] 内，对应于浮点值的范围 [-1.0, 1.0]。
+        /// <summary>
+        /// 方向 (XY)
+        /// </summary>
         public UnityEngine.Vector2 Direction { get; set; }
         public int Width { get; set; }
         public int NumLeftLanes { get; set; }
@@ -96,12 +148,29 @@ namespace SanAndreasUnity.Importing.Paths
         public int TrafficLightDirection { get; set; }
         public int TrafficLightBehavior { get; set; }
         public int IsTrainCrossing { get; set; }
+        //0- 7 - 路径节点宽度，通常是链接节点路径宽度的副本（字节）
+        // 8-10 - 左车道数
+        //11-13 - 右车道数
+        //   14 - 红绿灯方向行为
+        //   15 - 零/未使用
+        //16,17 - 红绿灯行为
+        //   18 - 火车道口
+        //19-31 - 零/未使用
         public byte Flags { get; set; }
     }
 
+    /// <summary>
+    /// 这些是到相邻节点的链接
+    /// </summary>
     public struct NodeLink
     {
+        /// <summary>
+        /// 区域 ID
+        /// </summary>
         public int AreaID { get; set; }
+        /// <summary>
+        /// 节点 ID
+        /// </summary>
         public int NodeID { get; set; }
         public PathNodeId PathNodeId => new PathNodeId { AreaID = AreaID, NodeID = NodeID };
         public int Length { get; set; }
@@ -112,12 +181,14 @@ namespace SanAndreasUnity.Importing.Paths
         }
     }
 
+    //路径交叉点标志
     public struct PathIntersectionFlags
     {
         public bool IsRoadCross { get; set; }
         public bool IsTrafficLight { get; set; }
     }
 
+    //这些是到相邻导航节点的链接
     public struct NavNodeLink
     {
         public int NodeLink { get; set; }

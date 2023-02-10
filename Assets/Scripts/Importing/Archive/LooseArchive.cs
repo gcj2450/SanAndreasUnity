@@ -41,7 +41,11 @@ namespace SanAndreasUnity.Importing.Archive
 
         public int NumLoadedEntries => _fileDict.Count;
 
-
+        /// <summary>
+        /// 加载所有的松散的档案文件
+        /// </summary>
+        /// <param name="dirPath"></param>
+        /// <returns></returns>
         public static LooseArchive Load(string dirPath)
         {
             return new LooseArchive(dirPath);
@@ -88,8 +92,7 @@ namespace SanAndreasUnity.Importing.Archive
                 _extDict[ext].Add(entry.Name);
             }
 
-            Debug.Log($"gcj: _fileDict count: {_fileDict.Count}");
-            Debug.Log($"gcj: _extDict count: {_extDict.Count}");
+            Debug.Log($"gcj: _fileDict count: {_fileDict.Count},_extDict count: {_extDict.Count}");
         }
 
         public IEnumerable<string> GetAllFiles()

@@ -167,6 +167,7 @@ namespace SanAndreasUnity.Importing.Archive
         public static Stream ReadFile(string name)
         {
             var arch = _sLoadedArchives.FirstOrDefault(x => x.ContainsFile(name));
+            Debug.Log($"gcj: ArchiveManager ReadFile: {name} arch == null:  {arch == null}");
             if (arch == null) throw new FileNotFoundException(name);
 
 			// get a stream and build memory stream out of it - this will ensure thread safe access

@@ -8,7 +8,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
     /// <summary>
     /// Export data containing extra information required to export
     /// </summary>
-    internal interface IExportData
+    public interface IExportData
     {
         HashSet<GameObject> Objects { get; }
     }

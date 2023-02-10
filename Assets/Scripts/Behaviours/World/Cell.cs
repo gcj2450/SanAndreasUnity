@@ -45,6 +45,9 @@ namespace SanAndreasUnity.Behaviours.World
 		/// </summary>
         public FocusPointManager<MapObject> FocusPointManager { get; private set; }
 
+		/// <summary>
+		/// 区域和距离
+		/// </summary>
 		private struct AreaWithDistance
 		{
 			public WorldSystem<MapObject>.Area area;
@@ -72,6 +75,9 @@ namespace SanAndreasUnity.Behaviours.World
 			}
 		}
 
+		/// <summary>
+		/// 需要更新的区域
+		/// </summary>
 		private readonly SortedSet<AreaWithDistance> _areasToUpdate = new SortedSet<AreaWithDistance>(new AreaWithDistanceComparer());
 		private readonly AreaWithDistance[] _bufferOfAreasToUpdate = new AreaWithDistance[64];
 		private int _indexOfBufferOfAreasToUpdate = 0;
@@ -125,6 +131,9 @@ namespace SanAndreasUnity.Behaviours.World
 
         public ushort[] xzWorldSystemNumAreasPerDrawDistanceLevel = { 100, 100, 100 };
 
+		/// <summary>
+		/// 商场等物体的Y轴偏移量
+		/// </summary>
         public float interiorHeightOffset = 5000f;
 
         public float fadeRate = 2f;
@@ -204,10 +213,10 @@ namespace SanAndreasUnity.Behaviours.World
 			return $"{inst.ObjectId}_{inst.Position}_{inst.Rotation}";
 		}
 
-		/// <summary>
-		/// 资源导出时调用的初始化全部
-		/// </summary>
-		public void InitAll()
+        /// <summary>
+        ///初始化全部, 资源导出时调用
+        /// </summary>
+        public void InitAll()
         {
 			this.CreateStaticGeometry();
 			this.InitStaticGeometry();
@@ -327,7 +336,7 @@ namespace SanAndreasUnity.Behaviours.World
 
 			this.FocusPointManager = new FocusPointManager<MapObject>(_worldSystem, this.MaxDrawDistance);
 
-			double worldSystemInitTime = stopwatch.Elapsed.TotalSeconds;
+            double worldSystemInitTime = stopwatch.Elapsed.TotalSeconds;
 
 			Debug.Log($"Num static geometries {m_insts.Count}, existing {numExistingObjects}, reused {numObjectsReused}, deleted {numDeletedObjects}, creation time {totalCreationTime:F3} s, world system init time {worldSystemInitTime:F3} s");
 		}
@@ -347,6 +356,7 @@ namespace SanAndreasUnity.Behaviours.World
 				var staticGeometry = inst.Value;
 				//初始化StaticGeometry
 				staticGeometry.Initialize(inst.Key, m_insts);
+				//初始化完成将其添加到世界系统里
 				_worldSystem.AddObjectToArea(
 					staticGeometry.transform.position,
 					(staticGeometry.ObjectDefinition?.DrawDist ?? 0) * this.drawDistanceMultiplier,
@@ -354,6 +364,9 @@ namespace SanAndreasUnity.Behaviours.World
 			}
 		}
 
+		/// <summary>
+		/// 创建停着的汽车
+		/// </summary>
 		internal void LoadParkedVehicles ()
 		{
 			if (loadParkedVehicles)
@@ -367,6 +380,9 @@ namespace SanAndreasUnity.Behaviours.World
 			}
 		}
 
+		/// <summary>
+		/// 创建传送点物体
+		/// </summary>
         internal void CreateEnexes()
         {
 			var existingEnexes = this.gameObject
@@ -397,6 +413,9 @@ namespace SanAndreasUnity.Behaviours.World
 
 		}
 
+		/// <summary>
+		/// 加载水域
+		/// </summary>
         internal void LoadWater ()
 		{
 			if (F.IsInHeadlessMode)
@@ -415,7 +434,11 @@ namespace SanAndreasUnity.Behaviours.World
 
 		}
 
-
+		/// <summary>
+		/// 区域更新可见性事件
+		/// </summary>
+		/// <param name="area"></param>
+		/// <param name="visible"></param>
 		private void OnAreaChangedVisibility(WorldSystem<MapObject>.Area area, bool visible)
 		{
 			if (null == area.ObjectsInside || area.ObjectsInside.Count == 0)
@@ -476,11 +499,22 @@ namespace SanAndreasUnity.Behaviours.World
 	            Quaternion.Euler(0f, enex.EntranceAngle, 0f));
         }
 
+		/// <summary>
+		/// 是否是外部Level,比如商场内部等
+		/// </summary>
+		/// <param name="interiorLevel"></param>
+		/// <returns></returns>
         public static bool IsExteriorLevel(int interiorLevel)
         {
 	        return interiorLevel == 0 || interiorLevel == 13;
         }
 
+		/// <summary>
+		/// 返回外部Level物体的位置
+		/// </summary>
+		/// <param name="originalPos"></param>
+		/// <param name="interiorLevel"></param>
+		/// <returns></returns>
         public Vector3 GetPositionBasedOnInteriorLevel(Vector3 originalPos, int interiorLevel)
         {
 	        if (!IsExteriorLevel(interiorLevel))
@@ -553,7 +587,7 @@ namespace SanAndreasUnity.Behaviours.World
 	            var areaWithDistance = _bufferOfAreasToUpdate[_indexOfBufferOfAreasToUpdate];
 	            _indexOfBufferOfAreasToUpdate++;
 	            _numElementsInBufferOfAreasToUpdate--;
-
+				//更新区域
 	            this.UpdateArea(areaWithDistance);
 
             }
@@ -562,6 +596,10 @@ namespace SanAndreasUnity.Behaviours.World
 
         }
 
+		/// <summary>
+		/// 更新区域，显示或隐藏物体
+		/// </summary>
+		/// <param name="areaWithDistance"></param>
         void UpdateArea(AreaWithDistance areaWithDistance)
         {
 	        var area = areaWithDistance.area;
@@ -576,17 +614,25 @@ namespace SanAndreasUnity.Behaviours.World
 
 		        F.RunExceptionSafe(() =>
 		        {
-			        if (visible)
-			        {
-				        obj.Show(areaWithDistance.distance);
-			        }
-			        else
-				        obj.UnShow();
+					if (visible)
+					{
+						//显示物体
+						obj.Show(areaWithDistance.distance);
+					}
+					else
+					{
+						//隐藏物体
+						obj.UnShow();
+					}
 		        });
 	        }
 
         }
 
+		/// <summary>
+		/// 导航网格注册物体
+		/// </summary>
+		/// <param name="mapObject"></param>
 		public void RegisterNavMeshObject(MapObject mapObject)
         {
 			if (null == _navMeshData) // nav mesh not initialized, generation can not be even unpaused
@@ -595,6 +641,9 @@ namespace SanAndreasUnity.Behaviours.World
 			_mapObjectsWithNavMeshToAdd.Add(mapObject);
 		}
 
+		/// <summary>
+		/// 更新导航网格
+		/// </summary>
 		void UpdateNavMesh()
         {
 			if (!m_generateNavMesh)

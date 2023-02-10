@@ -15,6 +15,9 @@ using UnityEngine.AI;
 
 namespace SanAndreasUnity.Behaviours.World
 {
+    /// <summary>
+    /// 静态几何体，继承自MapObject
+    /// </summary>
     public class StaticGeometry : MapObject
     {
         /// <summary>
@@ -92,8 +95,7 @@ namespace SanAndreasUnity.Behaviours.World
 
         public int NumLightSources => m_lightSources?.Length ?? 0;
 
-
-        private void OnEnable()
+		private void OnEnable()
         {
 	        if (m_lightSources != null)
 		        s_activeObjectsWithLights.Add(this);
@@ -112,6 +114,11 @@ namespace SanAndreasUnity.Behaviours.World
 	        s_timedObjects.Remove(this);
         }
 
+		/// <summary>
+		/// 初始化
+		/// </summary>
+		/// <param name="inst"></param>
+		/// <param name="dict"></param>
         public void Initialize(Instance inst, Dictionary<Instance, StaticGeometry> dict)
         {
             Instance = inst;
@@ -154,9 +161,12 @@ namespace SanAndreasUnity.Behaviours.World
             gameObject.isStatic = true;
         }
 
+		/// <summary>
+		/// 加载事件，真正加载显示物体MeshRender的地方
+		/// </summary>
         protected override void OnLoad()
         {
-            
+			Debug.Log($"gcj:StaticGeometry OnLoad: {this.gameObject.name}");
             if (!_canLoad) return;
 
 			if (null != this.GetComponent<MeshFilter>()) // already loaded - this also works in edit mode
@@ -209,12 +219,17 @@ namespace SanAndreasUnity.Behaviours.World
 				this.OnAssetsLoaded(geoms);
         }
 
+		/// <summary>
+		/// Assets加载完成事件，设置渲染和碰撞
+		/// </summary>
+		/// <param name="geoms"></param>
 		private void OnAssetsLoaded(Geometry.GeometryParts geoms)
 		{
-
+			//添加渲染组件
 			if (geoms != null)
 				this.AddRenderingParts(geoms);
-
+			
+			//添加碰撞器
 			Profiler.BeginSample("Attach collision", this);
 			Debug.Log($"gcj:Attach collision: {this.ObjectDefinition.ModelName}");
 			Importing.Conversion.CollisionModel.Load(this.ObjectDefinition.ModelName, this.transform, false);
@@ -222,6 +237,7 @@ namespace SanAndreasUnity.Behaviours.World
 
 			Profiler.BeginSample ("Set layer", this);
 
+			//如果是可破碎的物体，移到可破碎层
 			if (ObjectDefinition.Flags.HasFlag(ObjectFlag.Breakable))
 			{
 				gameObject.SetLayerRecursive(BreakableLayer);
@@ -230,7 +246,7 @@ namespace SanAndreasUnity.Behaviours.World
 			Profiler.EndSample ();
 
 			_isGeometryLoaded = true;
-
+			//更新可见性
 			this.UpdateVisibility();
 
 			if (LodParent == null)
@@ -238,10 +254,15 @@ namespace SanAndreasUnity.Behaviours.World
             
 		}
 
+		/// <summary>
+		/// 添加渲染组件, MeshFilter和MeshRenderer, 
+		/// 设置渲染效果
+		/// </summary>
+		/// <param name="geoms"></param>
 		private void AddRenderingParts(Geometry.GeometryParts geoms)
         {
 			Profiler.BeginSample("Add mesh", this);
-
+			Debug.Log($"gcj: StaticGemoetry AddRenderingParts: {gameObject.name}");
 			var mf = gameObject.AddComponent<MeshFilter>();
 			var mr = gameObject.AddComponent<MeshRenderer>();
 
@@ -260,6 +281,9 @@ namespace SanAndreasUnity.Behaviours.World
 
 		}
 
+		/// <summary>
+		/// 显示调用，更新可见性
+		/// </summary>
 		protected override void OnShow()
         {
 			Profiler.BeginSample ("StaticGeometry.OnShow");
@@ -268,13 +292,19 @@ namespace SanAndreasUnity.Behaviours.World
 
 			Profiler.EndSample ();
         }
-
+		/// <summary>
+		/// 隐藏调用，更新可见性
+		/// </summary>
 		protected override void OnUnShow()
 		{
 			this.UpdateVisibility();
 		}
 
-		private IEnumerator FadeCoroutine()
+        /// <summary>
+        /// 渐隐/渐显设置物体可见性
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator FadeCoroutine()
         {
             if (_isFading) yield break;
 
@@ -317,26 +347,33 @@ namespace SanAndreasUnity.Behaviours.World
 
             mr.SetPropertyBlock(null);
 
-            this.gameObject.SetActive(this.ShouldBeVisibleNow);
-        }
+			this.gameObject.SetActive(this.ShouldBeVisibleNow);
+		}
 
+		/// <summary>
+		/// 更新物体可见性，设置材质透明度物体SetActive
+		/// </summary>
         private void UpdateVisibility()
         {
 	        bool needsFading = this.NeedsFading();
 
-	        this.gameObject.SetActive(needsFading || this.ShouldBeVisibleNow);
+			this.gameObject.SetActive(needsFading || this.ShouldBeVisibleNow);
 
-	        if (needsFading)
+			if (needsFading)
 	        {
 		        _isFading = false;
 		        this.StopCoroutine(nameof(FadeCoroutine));
 		        this.StartCoroutine(nameof(FadeCoroutine));
 	        }
-
+			//Lod子物体更新可见性
 	        if (LodChild != null)
 		        LodChild.UpdateVisibility();
         }
 
+        /// <summary>
+        /// 是否需要渐隐、渐显
+        /// </summary>
+        /// <returns></returns>
         private bool NeedsFading()
         {
 			if (F.IsAppInEditMode)
@@ -356,6 +393,10 @@ namespace SanAndreasUnity.Behaviours.World
 	        return true;
         }
 
+		/// <summary>
+		/// 是否接收阴影
+		/// </summary>
+		/// <returns></returns>
         private bool ShouldReceiveShadows()
         {
 	        if (null == this.ObjectDefinition)
@@ -374,6 +415,10 @@ namespace SanAndreasUnity.Behaviours.World
 	        return true;
         }
 
+		/// <summary>
+		/// 是否投射影子
+		/// </summary>
+		/// <returns></returns>
         private bool ShouldCastShadows()
         {
 	        if (null == this.ObjectDefinition)
@@ -393,6 +438,9 @@ namespace SanAndreasUnity.Behaviours.World
 	        return true;
         }
 
+		/// <summary>
+		/// 时间改变事件，更新物体灯光效果和分时段显示物体的可见性
+		/// </summary>
         private static void OnHourChanged()
         {
 	        foreach (var timedObject in s_timedObjects)
@@ -409,6 +457,11 @@ namespace SanAndreasUnity.Behaviours.World
 	        }
         }
 
+		/// <summary>
+		/// 根据当前时间判断物体可见性
+		/// </summary>
+		/// <param name="timeObjectDef"></param>
+		/// <returns></returns>
         private static bool IsObjectVisibleBasedOnCurrentDayTime(TimeObjectDef timeObjectDef)
         {
 	        byte currentHour = DayTimeManager.Singleton.CurrentTimeHours;
@@ -422,6 +475,10 @@ namespace SanAndreasUnity.Behaviours.World
 	        }
         }
 
+		/// <summary>
+		/// 创建灯光并设置颜色，如红绿灯
+		/// </summary>
+		/// <param name="geometryParts"></param>
         private void CreateLights(
 	        Geometry.GeometryParts geometryParts)
         {
@@ -463,6 +520,12 @@ namespace SanAndreasUnity.Behaviours.World
 	        this.InvokeRepeating(nameof(this.UpdateLights), 0f, 0.2f);
         }
 
+		/// <summary>
+		/// 使用Sprite，模拟灯光效果，比如红绿灯
+		/// </summary>
+		/// <param name="tr"></param>
+		/// <param name="geometryParts"></param>
+		/// <returns></returns>
         public static List<LightSource> CreateLights(
 	        Transform tr,
 	        Geometry.GeometryParts geometryParts)
@@ -488,6 +551,10 @@ namespace SanAndreasUnity.Behaviours.World
 	        return lights;
         }
 
+		/// <summary>
+		/// 根据物体旋转获取时间偏移值
+		/// </summary>
+		/// <returns></returns>
         private float GetTrafficLightTimeOffset()
         {
 	        // determine time offset based on rotation of object
@@ -496,12 +563,20 @@ namespace SanAndreasUnity.Behaviours.World
 	        return perc * GetTrafficLightCycleDuration();
         }
 
+		/// <summary>
+		/// 获取红绿灯一个循环的持续时间(红灯时间+绿灯时间+黄灯时间)
+		/// </summary>
+		/// <returns></returns>
         private static float GetTrafficLightCycleDuration()
         {
 	        var cell = Cell.Instance;
 	        return cell.redTrafficLightDuration + cell.yellowTrafficLightDuration + cell.greenTrafficLightDuration;
         }
 
+		/// <summary>
+		/// 获取当前激活的红绿灯索引
+		/// </summary>
+		/// <returns></returns>
         private int CalculateActiveTrafficLightIndex()
         {
 	        int index = -1;
@@ -521,11 +596,17 @@ namespace SanAndreasUnity.Behaviours.World
 	        return index;
         }
 
+		/// <summary>
+		/// 更新灯光，主要是红绿灯
+		/// </summary>
         private void UpdateLights()
         {
 	        UpdateTrafficLights();
         }
 
+		/// <summary>
+		/// 更新红绿灯
+		/// </summary>
         private void UpdateTrafficLights()
         {
 	        if (!m_hasTrafficLights)
@@ -544,6 +625,9 @@ namespace SanAndreasUnity.Behaviours.World
 		        EnableLights(m_greenTrafficLights, m_activeTrafficLightIndex == 2);
         }
 
+		/// <summary>
+		/// 根据时间更新灯光
+		/// </summary>
         private void UpdateLightsBasedOnDayTime()
         {
 	        if (null == m_lightSources)
@@ -559,6 +643,11 @@ namespace SanAndreasUnity.Behaviours.World
 	        }
         }
 
+		/// <summary>
+		/// 激活或隐藏灯光
+		/// </summary>
+		/// <param name="lights"></param>
+		/// <param name="enable"></param>
         private static void EnableLights(LightSource[] lights, bool enable)
         {
 	        for (int i = 0; i < lights.Length; i++)
@@ -567,6 +656,15 @@ namespace SanAndreasUnity.Behaviours.World
 	        }
         }
 
+		/// <summary>
+		/// 判断颜色是否在范围内
+		/// </summary>
+		/// <param name="targetColor"></param>
+		/// <param name="colorToCheck"></param>
+		/// <param name="redVar"></param>
+		/// <param name="greenVar"></param>
+		/// <param name="blueVar"></param>
+		/// <returns></returns>
         private static bool IsColorInRange(Color32 targetColor, Color32 colorToCheck, int redVar, int greenVar, int blueVar)
         {
 	        var diffR = targetColor.r - colorToCheck.r;

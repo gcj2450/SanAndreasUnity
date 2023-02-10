@@ -392,6 +392,7 @@ namespace SanAndreasUnity.Importing.Conversion
                     _alpha.Add(tex.AlphaName, tex);
                 }
             }
+            Debug.Log($"gcj: TextureDictionary _diffuse Count: {_diffuse.Count} , _alpha Count: {_alpha.Count}");
         }
 
         public TextureNative GetDiffuseNative(string name)

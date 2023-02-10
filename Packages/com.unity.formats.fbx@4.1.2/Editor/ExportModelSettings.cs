@@ -116,7 +116,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
         }
     }
 
-    internal interface IExportOptions {
+    public interface IExportOptions {
         ExportSettings.ExportFormat ExportFormat { get; }
         ExportSettings.Include ModelAnimIncludeOption { get; }
         ExportSettings.LODExportType LODExportType { get; }
@@ -130,7 +130,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
         Transform AnimationDest { get; }
     }
 
-    internal abstract class ExportOptionsSettingsBase<T> : ScriptableObject where T : ExportOptionsSettingsSerializeBase, new()
+    public abstract class ExportOptionsSettingsBase<T> : ScriptableObject where T : ExportOptionsSettingsSerializeBase, new()
     {
         [SerializeField]
         private T m_info = new T();
@@ -156,11 +156,11 @@ namespace UnityEditor.Formats.Fbx.Exporter
         }
     }
 
-    internal class ExportModelSettings : ExportOptionsSettingsBase<ExportModelSettingsSerialize>
+    public class ExportModelSettings : ExportOptionsSettingsBase<ExportModelSettingsSerialize>
     {}
 
     [System.Serializable]
-    internal abstract class ExportOptionsSettingsSerializeBase : IExportOptions
+    public abstract class ExportOptionsSettingsSerializeBase : IExportOptions
     {
         [SerializeField]
         private ExportSettings.ExportFormat exportFormat = ExportSettings.ExportFormat.ASCII;
@@ -210,7 +210,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
     }
 
     [System.Serializable]
-    internal class ExportModelSettingsSerialize : ExportOptionsSettingsSerializeBase
+    public class ExportModelSettingsSerialize : ExportOptionsSettingsSerializeBase
     {
         [SerializeField]
         private ExportSettings.Include include = ExportSettings.Include.ModelAndAnim;
@@ -234,7 +234,7 @@ namespace UnityEditor.Formats.Fbx.Exporter
         public override bool PreserveImportSettings { get { return preserveImportSettings; } }
         public void SetPreserveImportSettings(bool preserveImportSettings){ this.preserveImportSettings = preserveImportSettings; }
         public override bool AllowSceneModification { get { return false; } }
-
+        
         public override bool Equals(object e)
         {
             var expOptions = e as ExportModelSettingsSerialize;

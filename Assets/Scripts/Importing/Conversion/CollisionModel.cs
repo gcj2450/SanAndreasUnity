@@ -72,16 +72,35 @@ namespace SanAndreasUnity.Importing.Conversion
         private static readonly Dictionary<string, CollisionModel> _sLoaded
             = new Dictionary<string, CollisionModel>(StringComparer.InvariantCultureIgnoreCase);
 
+        /// <summary>
+        /// ¼ÓÔØÅö×²Æ÷
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="destParent"></param>
+        /// <param name="forceConvex"></param>
         public static void Load(string name, Transform destParent, bool forceConvex = false)
         {
             Load(name, null, destParent, forceConvex);
         }
 
+        /// <summary>
+        /// ¼ÓÔØÅö×²Æ÷
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="destParent"></param>
+        /// <param name="forceConvex"></param>
         public static void Load(CollisionFile file, Transform destParent, bool forceConvex = false)
         {
             Load(file.Name, file, destParent, forceConvex);
         }
 
+        /// <summary>
+        /// ¼ÓÔØÅö×²Æ÷ÎÄ¼ş£¬Ìí¼ÓÅö×²Æ÷
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="file"></param>
+        /// <param name="destParent"></param>
+        /// <param name="forceConvex"></param>
         private static void Load(string name, CollisionFile file, Transform destParent, bool forceConvex)
         {
             CollisionModel col;

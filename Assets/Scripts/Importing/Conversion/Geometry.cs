@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using UGameCore.Utilities;
+using UnityEditor;
 using UnityEngine;
 using Profiler = UnityEngine.Profiling.Profiler;
 
@@ -226,62 +227,69 @@ namespace SanAndreasUnity.Importing.Conversion
 
                 if (diffuse == null)
                 {
-                    Debug.LogWarningFormat($"Unable to find texture {tex.TextureName}");
-                }
+                    //官方源码只是报个警告
+                    //Debug.LogWarningFormat($"Unable to find texture {tex.TextureName}");
 
-                //保存图片================================
-                string dir = Application.dataPath + "/GTA_SA/Textures/";
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-                string filePath = dir + tex.TextureName+".png";
-                if (!File.Exists(filePath))
+                    //数据包中找不到贴图就从项目中找
+                    UnityEngine.Texture2D tmptex = AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>("Assets/GTA_SA/Textures/" + tex.TextureName + ".png");
+                    diffuse=new LoadedTexture(tmptex, true);
+                }
+                else
                 {
-                    Debug.Log("=============== " + tex.TextureName);
-                    //byte[] bytes = diffuse.Texture.EncodeToPNG();
-                    //File.WriteAllBytes(filePath, bytes);
-                    // 创建一个与纹理大小相同的临时 RenderTexture
-                    RenderTexture tmp = RenderTexture.GetTemporary(
-                                        diffuse.Texture.width,
-                                        diffuse.Texture.height,
-                                        0,
-                                        RenderTextureFormat.Default,
-                                        RenderTextureReadWrite.Linear);
+
+                    //保存图片================================
+                    string dir = Application.dataPath + "/GTA_SA/Textures/";
+                    if (!Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
+                    string filePath = dir + tex.TextureName + ".png";
+                    if (!File.Exists(filePath))
+                    {
+                        Debug.Log("=============== " + tex.TextureName);
+                        //byte[] bytes = diffuse.Texture.EncodeToPNG();
+                        //File.WriteAllBytes(filePath, bytes);
+                        // 创建一个与纹理大小相同的临时 RenderTexture
+                        RenderTexture tmp = RenderTexture.GetTemporary(
+                                            diffuse.Texture.width,
+                                            diffuse.Texture.height,
+                                            0,
+                                            RenderTextureFormat.Default,
+                                            RenderTextureReadWrite.Linear);
 
 
-                    // 将纹理上的像素 Blit 到 RenderTexture
-                    Graphics.Blit(diffuse.Texture, tmp);
+                        // 将纹理上的像素 Blit 到 RenderTexture
+                        Graphics.Blit(diffuse.Texture, tmp);
 
 
-                    // 备份当前设置的 RenderTexture
-                    RenderTexture previous = RenderTexture.active;
+                        // 备份当前设置的 RenderTexture
+                        RenderTexture previous = RenderTexture.active;
 
 
-                    // 将当前的 RenderTexture 设置为我们创建的临时
-                    RenderTexture.active = tmp;
+                        // 将当前的 RenderTexture 设置为我们创建的临时
+                        RenderTexture.active = tmp;
 
 
-                    // 创建一个新的可读 Texture2D 将像素复制到它
-                    Texture2D myTexture2D = new Texture2D(diffuse.Texture.width, diffuse.Texture.height);
+                        // 创建一个新的可读 Texture2D 将像素复制到它
+                        Texture2D myTexture2D = new Texture2D(diffuse.Texture.width, diffuse.Texture.height);
 
 
-                    // 将像素从 RenderTexture 复制到新的 Texture
-                    myTexture2D.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
-                    myTexture2D.Apply();
+                        // 将像素从 RenderTexture 复制到新的 Texture
+                        myTexture2D.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
+                        myTexture2D.Apply();
 
 
-                    // 重置活动的 RenderTexture
-                    RenderTexture.active = previous;
+                        // 重置活动的 RenderTexture
+                        RenderTexture.active = previous;
 
 
-                    // 释放临时的RenderTexture
-                    RenderTexture.ReleaseTemporary(tmp);
+                        // 释放临时的RenderTexture
+                        RenderTexture.ReleaseTemporary(tmp);
 
-                    byte[] bytes = myTexture2D.EncodeToPNG();
-                    File.WriteAllBytes(filePath, bytes);
-                    // “myTexture2D”现在具有与“texture”相同的像素，它是重新
+                        byte[] bytes = myTexture2D.EncodeToPNG();
+                        File.WriteAllBytes(filePath, bytes);
+                        // “myTexture2D”现在具有与“texture”相同的像素，它是重新
+                    }
+                    //保存图片================================
                 }
-                //保存图片================================
-
 
                 if (!string.IsNullOrEmpty(tex.MaskName))
                 {

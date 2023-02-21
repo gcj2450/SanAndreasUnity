@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace SanAndreasUnity.Importing.Items.Placements
 {
+    /// <summary>
+    /// 汽车
+    /// </summary>
     [Section("cars")]
     public class ParkedVehicle : Placement
     {

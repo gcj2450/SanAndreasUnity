@@ -10,8 +10,14 @@ using Profiler = UnityEngine.Profiling.Profiler;
 
 namespace SanAndreasUnity.Importing.Collision
 {
+    /// <summary>
+    /// 碰撞器文件，在初始化的时候先加载进内存，在生成模型的时候根据模型名称，再读取
+    /// </summary>
     public class CollisionFile
     {
+        /// <summary>
+        /// 碰撞器文件信息
+        /// </summary>
         private class CollisionFileInfo
         {
             private CollisionFile _value;
@@ -56,7 +62,12 @@ namespace SanAndreasUnity.Importing.Collision
 			new AsyncLoader<String, CollisionFile> (StringComparer.InvariantCultureIgnoreCase);
 
 
-		// load collision file infos
+        /// <summary>
+        /// load collision file infos
+        /// 加载碰撞文件信息，Loader调用，
+        /// 首先加载完存储进字典，生成碰撞模型的时候直接获取
+        /// </summary>
+        /// <param name="fileName"></param>
         public static void Load(string fileName)
         {
             var thisFile = new List<CollisionFileInfo>();
@@ -88,7 +99,7 @@ namespace SanAndreasUnity.Importing.Collision
 
                     var modelInfo = new CollisionFileInfo(reader, fileName, version);
                     thisFile.Add(modelInfo);
-
+                    Debug.Log($"gcj:CollisionFile Load {modelInfo.Name}____{fileName}");
                     if (!_sModelNameDict.ContainsKey(modelInfo.Name))
                     {
                         _sModelNameDict.Add(modelInfo.Name, modelInfo);
@@ -127,6 +138,12 @@ namespace SanAndreasUnity.Importing.Collision
             return new CollisionFile(info, stream);
         }
 
+        /// <summary>
+        /// 根据文件名获取已经加载的碰撞器文件，
+        /// 这个方法是在生成碰撞模型的时候调用
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static CollisionFile FromName(String name)
         {
 			if (s_asyncLoader.TryGetLoadedObject(name, out CollisionFile alreadyLoadedCollisionFile))
@@ -305,7 +322,8 @@ namespace SanAndreasUnity.Importing.Collision
                 {
                     Vertices[i] = new Vertex(reader, version);
                 }
-
+                //Debug.Log($"gcj: aaaaaaaa Name: {Name}__verts {verts}___faceGroups: {faceGroups}");
+                //这里faceGroups是指每个物体碰撞器的个数
                 if (faceGroups > 0)
                 {
                     stream.Seek(faceGroupsOffset, SeekOrigin.Begin);

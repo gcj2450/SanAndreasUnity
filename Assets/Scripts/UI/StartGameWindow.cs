@@ -79,6 +79,7 @@ namespace SanAndreasUnity.UI
 			GUILayout.Space(40);
 
 			GUI.enabled = ! NetStatus.IsServer;
+			//开始游戏按钮
             if (GUIUtils.ButtonWithCalculatedSize("Start", this.minStartButtonWidth, this.minStartButtonHeight))
 				StartGame();
             GUI.enabled = true;
@@ -87,7 +88,10 @@ namespace SanAndreasUnity.UI
 
 		}
 
-		void StartGame()
+        /// <summary>
+        /// 端口设置界面中的开始游戏按钮点击事件
+        /// </summary>
+        void StartGame()
 		{
 			try
 			{

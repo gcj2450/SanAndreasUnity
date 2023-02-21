@@ -260,7 +260,7 @@ namespace SanAndreasUnity.Importing.Conversion
 				return alreadyLoadedTxd;
 
 			UnityEngine.Profiling.Profiler.BeginSample ("TextureDictionary.Load");
-
+            Debug.Log($"gcj: load texture: {name}");
             var txd = new TextureDictionary(DontLoadTextures ? null : ArchiveManager.ReadFile<RenderWareStream.TextureDictionary>(name + ".txd"));
 			s_asyncLoader.OnObjectFinishedLoading(name, txd, true);
 
@@ -392,6 +392,7 @@ namespace SanAndreasUnity.Importing.Conversion
                     _alpha.Add(tex.AlphaName, tex);
                 }
             }
+            Debug.Log($"gcj: TextureDictionary _diffuse Count: {_diffuse.Count} , _alpha Count: {_alpha.Count}");
         }
 
         public TextureNative GetDiffuseNative(string name)

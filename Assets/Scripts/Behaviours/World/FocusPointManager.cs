@@ -5,11 +5,24 @@ using UnityEngine;
 
 namespace SanAndreasUnity.Behaviours.World
 {
+
+    /// <summary>
+    /// 注视点参数
+    /// </summary>
     [Serializable]
     public struct FocusPointParameters
     {
+        /// <summary>
+        /// 是否有暴露范围
+        /// </summary>
         public bool hasRevealRadius;
+        /// <summary>
+        /// 暴露范围
+        /// </summary>
         public float revealRadius;
+        /// <summary>
+        /// 移除后保持暴露时间
+        /// </summary>
         public float timeToKeepRevealingAfterRemoved;
 
         public FocusPointParameters(bool hasRevealRadius, float revealRadius, float timeToKeepRevealingAfterRemoved)
@@ -19,6 +32,9 @@ namespace SanAndreasUnity.Behaviours.World
             this.timeToKeepRevealingAfterRemoved = timeToKeepRevealingAfterRemoved;
         }
 
+        /// <summary>
+        /// 默认注视点参数
+        /// </summary>
         public static FocusPointParameters Default => new FocusPointParameters(true, 150f, 3f);
     }
 
@@ -31,16 +47,37 @@ namespace SanAndreasUnity.Behaviours.World
 
         private float _defaultRevealRadius;
 
+        /// <summary>
+        /// 注视点信息
+        /// </summary>
         public struct FocusPointInfo
         {
+            /// <summary>
+            /// 注视点
+            /// </summary>
             public WorldSystem.FocusPoint focusPoint;
+            /// <summary>
+            /// Transform
+            /// </summary>
             public Transform transform;
+            /// <summary>
+            /// 移除后保持暴露的时间长度
+            /// </summary>
             public float timeToKeepRevealingAfterRemoved;
+            /// <summary>
+            /// 移除后的时间
+            /// </summary>
             public double timeWhenRemoved;
+            /// <summary>
+            /// 是否具有暴露范围
+            /// </summary>
             public bool hasRevealRadius;
         }
 
         private List<FocusPointInfo> _focusPoints = new List<FocusPointInfo>();
+        /// <summary>
+        /// 注视点信息列表
+        /// </summary>
         public IReadOnlyList<FocusPointInfo> FocusPoints => _focusPoints;
 
         private List<FocusPointInfo> _focusPointsToRemoveAfterTimeout = new List<FocusPointInfo>();
@@ -54,6 +91,11 @@ namespace SanAndreasUnity.Behaviours.World
             _defaultRevealRadius = defaultRevealRadius;
         }
 
+        /// <summary>
+        /// 注册关注点
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="parameters"></param>
         public void RegisterFocusPoint(Transform tr, FocusPointParameters parameters)
         {
             if (!_focusPoints.Exists(f => f.transform == tr))
@@ -70,6 +112,10 @@ namespace SanAndreasUnity.Behaviours.World
             }
         }
 
+        /// <summary>
+        /// 取消注册关注点
+        /// </summary>
+        /// <param name="tr"></param>
         public void UnRegisterFocusPoint(Transform tr)
         {
             int index = _focusPoints.FindIndex(f => f.transform == tr);
@@ -137,6 +183,10 @@ namespace SanAndreasUnity.Behaviours.World
 
         }
 
+        /// <summary>
+        /// 修改默认暴露半径
+        /// </summary>
+        /// <param name="newDefaultRevealRadius"></param>
         public void ChangeDefaultRevealRadius(float newDefaultRevealRadius)
         {
             _defaultRevealRadius = newDefaultRevealRadius;

@@ -66,7 +66,6 @@ namespace SanAndreasUnity.Behaviours.Audio
 
 		public static void InitFromLoader ()
 		{
-
 			s_gtaAudioFiles = GTAAudio.OpenRead (Path.Combine (Config.GamePath, "audio"));
 
 			if (Singleton.playStartupSound)

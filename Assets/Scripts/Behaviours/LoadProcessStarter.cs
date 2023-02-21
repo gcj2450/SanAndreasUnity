@@ -6,6 +6,7 @@ namespace SanAndreasUnity.Behaviours
     {
         void Start()
         {
+            //主逻辑入口
             Loader.StartLoading();
         }
     }

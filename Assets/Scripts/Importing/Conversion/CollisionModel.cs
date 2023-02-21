@@ -72,16 +72,35 @@ namespace SanAndreasUnity.Importing.Conversion
         private static readonly Dictionary<string, CollisionModel> _sLoaded
             = new Dictionary<string, CollisionModel>(StringComparer.InvariantCultureIgnoreCase);
 
+        /// <summary>
+        /// 加载碰撞器
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="destParent"></param>
+        /// <param name="forceConvex"></param>
         public static void Load(string name, Transform destParent, bool forceConvex = false)
         {
             Load(name, null, destParent, forceConvex);
         }
 
+        /// <summary>
+        /// 加载碰撞器
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="destParent"></param>
+        /// <param name="forceConvex"></param>
         public static void Load(CollisionFile file, Transform destParent, bool forceConvex = false)
         {
             Load(file.Name, file, destParent, forceConvex);
         }
 
+        /// <summary>
+        /// 加载碰撞器文件，添加碰撞器
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="file"></param>
+        /// <param name="destParent"></param>
+        /// <param name="forceConvex"></param>
         private static void Load(string name, CollisionFile file, Transform destParent, bool forceConvex)
         {
             CollisionModel col;
@@ -137,6 +156,12 @@ namespace SanAndreasUnity.Importing.Conversion
         private readonly GameObject _template;
         private readonly Dictionary<SurfaceFlags, Transform> _flagGroups;
 
+        /// <summary>
+        /// 给物体添加不同类型碰撞器
+        /// </summary>
+        /// <typeparam name="TCollider"></typeparam>
+        /// <param name="surface"></param>
+        /// <param name="setup"></param>
         private void Add<TCollider>(Surface surface, Action<TCollider> setup)
             where TCollider : Collider
         {
@@ -151,7 +176,8 @@ namespace SanAndreasUnity.Importing.Conversion
             }
 
             var type = typeof(TCollider);
-            var obj = new GameObject(type.Name, type);
+            //这里添加了一个子物体数量的后缀，用于区分不同名称
+            var obj = new GameObject(type.Name+"_"+ _flagGroups[surface.Flags].childCount, type);
             obj.transform.SetParent(_flagGroups[surface.Flags]);
 
             setup(obj.GetComponent<TCollider>());
@@ -159,6 +185,11 @@ namespace SanAndreasUnity.Importing.Conversion
 			Profiler.EndSample ();
         }
 
+        /// <summary>
+        /// 生成碰撞器物体模板预制体，
+        /// 这些物体都会生成在Collision Templates物体下
+        /// </summary>
+        /// <param name="file"></param>
         private CollisionModel(CollisionFile file)
         {
 			Profiler.BeginSample ("CollisionModel()");
@@ -168,12 +199,12 @@ namespace SanAndreasUnity.Importing.Conversion
                 _sTemplateParent = new GameObject("Collision Templates");
                 _sTemplateParent.SetActive(false);
             }
-
             _template = new GameObject(file.Name);
             _template.transform.SetParent(_sTemplateParent.transform);
 
             _flagGroups = new Dictionary<SurfaceFlags, Transform>();
 
+            //添加BoxCollider
             foreach (var box in file.Boxes)
             {
                 Add<BoxCollider>(box.Surface, x =>
@@ -186,6 +217,7 @@ namespace SanAndreasUnity.Importing.Conversion
                 });
             }
 
+            //添加SphereCollider
             foreach (var sphere in file.Spheres)
             {
                 Add<SphereCollider>(sphere.Surface, x =>
@@ -195,6 +227,7 @@ namespace SanAndreasUnity.Importing.Conversion
                 });
             }
 
+            //添加MeshCollider
             if (file.FaceGroups.Length > 0)
             {
                 foreach (var group in file.FaceGroups)
@@ -219,8 +252,14 @@ namespace SanAndreasUnity.Importing.Conversion
 			Profiler.EndSample ();
         }
 
+        /// <summary>
+        /// 生成碰撞器物体
+        /// </summary>
+        /// <param name="destParent"></param>
+        /// <param name="forceConvex"></param>
         public void Spawn(Transform destParent, bool forceConvex)
         {
+            Debug.Log($"gcj: ____Spawn AAA _template=null : {_template == null}, _template name: {_template.name}");
             var clone = Object.Instantiate(_template.gameObject);
 
             clone.name = "Collision";

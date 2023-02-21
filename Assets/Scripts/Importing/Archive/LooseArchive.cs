@@ -41,12 +41,20 @@ namespace SanAndreasUnity.Importing.Archive
 
         public int NumLoadedEntries => _fileDict.Count;
 
-
+        /// <summary>
+        /// 加载所有的松散的档案文件
+        /// </summary>
+        /// <param name="dirPath"></param>
+        /// <returns></returns>
         public static LooseArchive Load(string dirPath)
         {
             return new LooseArchive(dirPath);
         }
 
+        /// <summary>
+        /// 加载游戏目录下的所有_sValidExtensions格式列表下的文件
+        /// </summary>
+        /// <param name="dirPath"></param>
         private LooseArchive(string dirPath)
         {
             Debug.Log("Loading loose archive: " + dirPath);
@@ -83,6 +91,8 @@ namespace SanAndreasUnity.Importing.Archive
 
                 _extDict[ext].Add(entry.Name);
             }
+
+            Debug.Log($"gcj: _fileDict count: {_fileDict.Count},_extDict count: {_extDict.Count}");
         }
 
         public IEnumerable<string> GetAllFiles()
@@ -90,6 +100,11 @@ namespace SanAndreasUnity.Importing.Archive
             return _fileDict.Keys;
         }
 
+        /// <summary>
+        /// 获取指定后缀下的文件列表
+        /// </summary>
+        /// <param name="ext"></param>
+        /// <returns></returns>
         public IEnumerable<string> GetFileNamesWithExtension(string ext)
         {
             return _extDict.ContainsKey(ext) ? _extDict[ext] : Enumerable.Empty<string>();

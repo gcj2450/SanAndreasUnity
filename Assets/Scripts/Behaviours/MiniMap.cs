@@ -90,6 +90,9 @@ namespace SanAndreasUnity.Behaviours
 
         }
 
+        /// <summary>
+        /// 加载小地图图片
+        /// </summary>
         private void LoadGameTextures()
         {
             LoadMapTexture();
@@ -103,10 +106,14 @@ namespace SanAndreasUnity.Behaviours
 
             northImage.sprite = Sprite.Create(NorthBlip, new Rect(0, 0, NorthBlip.width, NorthBlip.height), new Vector2(NorthBlip.width, NorthBlip.height) / 2);
             playerImage.texture = this.PlayerBlip;
+            //小地图底图
             mapImage.texture = MapTexture;
 
         }
 
+        /// <summary>
+        /// 加载小地图底图
+        /// </summary>
         void LoadMapTexture()
         {
             MapTexture = new Texture2D(mapSize, mapSize, TextureFormat.ARGB32, false, true);

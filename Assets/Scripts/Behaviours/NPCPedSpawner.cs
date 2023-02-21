@@ -281,8 +281,12 @@ namespace SanAndreasUnity.Behaviours
             }
         }
 
+        /// <summary>
+        /// 绘制Ped当前的路径
+        /// </summary>
         private void OnDrawGizmosSelected()
         {
+            //选中GameManager时，会显示当前NPC使用的AI寻路路径
             if (null == Ped.Instance)
                 return;
 

@@ -43,6 +43,9 @@ namespace SanAndreasUnity.Behaviours.World
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (s1, s2) => OnActiveSceneChanged();
         }
 
+        /// <summary>
+        /// 场景改变，找到Cell组件，设置绘制距离
+        /// </summary>
         void OnActiveSceneChanged()
         {
             // apply settings
@@ -53,6 +56,10 @@ namespace SanAndreasUnity.Behaviours.World
 
         }
 
+        /// <summary>
+        /// 设置绘制距离和相机的ClipPlane
+        /// </summary>
+        /// <param name="cell"></param>
         void ApplyMaxDrawDistance(Cell cell)
         {
             if (cell != null)

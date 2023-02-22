@@ -3,6 +3,9 @@ using System.IO;
 
 namespace SanAndreasUnity.Importing.RenderWareStream
 {
+    /// <summary>
+    /// 图片字典数据流
+    /// </summary>
     [SectionType(22)]
     public class TextureDictionary : SectionData
     {

@@ -42,7 +42,7 @@ namespace SanAndreasUnity.Importing.Archive
         Stream ReadFile(string name);
 
         /// <summary>
-        /// 加载到的入口数量
+        /// 加载到的文件数量
         /// </summary>
         int NumLoadedEntries { get; }
     }
@@ -135,13 +135,14 @@ namespace SanAndreasUnity.Importing.Archive
 		[MethodImpl(MethodImplOptions.Synchronized)]
         public static LooseArchive LoadLooseArchive(string dirPath)
         {
-            var arch = LooseArchive.Load(dirPath);
+            LooseArchive arch = LooseArchive.Load(dirPath);
             _sLoadedArchives.Add(arch);
+            Debug.Log("_sLoadedArchives.Add: " +_sLoadedArchives.Count);
             return arch;
         }
 
         /// <summary>
-        /// 根据文件路径获取加载档案文件
+        /// 加载img文件档案
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
@@ -150,6 +151,8 @@ namespace SanAndreasUnity.Importing.Archive
         {
             var arch = ImageArchive.Load(filePath);
             _sLoadedArchives.Add(arch);
+            Debug.Log("_sLoadedArchives.Add: " + _sLoadedArchives.Count);
+
             return arch;
         }
 
@@ -248,6 +251,13 @@ namespace SanAndreasUnity.Importing.Archive
 			});
 		}
 
+        /// <summary>
+        /// 读取文件
+        /// </summary>
+        /// <typeparam name="TSection"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
 		[MethodImpl(MethodImplOptions.Synchronized)]	// ensure section is read, before another thread can read archives
         public static TSection ReadFile<TSection>(string name)
             where TSection : SectionData

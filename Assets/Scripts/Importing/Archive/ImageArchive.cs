@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace SanAndreasUnity.Importing.Archive
 {
+    /// <summary>
+    /// img文件
+    /// </summary>
     public class ImageArchive : IArchive, IDisposable
     {
         private struct ImageArchiveEntry

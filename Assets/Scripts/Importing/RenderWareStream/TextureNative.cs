@@ -1,6 +1,7 @@
 ﻿using UGameCore.Utilities;
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace SanAndreasUnity.Importing.RenderWareStream
 {
@@ -102,5 +103,72 @@ namespace SanAndreasUnity.Importing.RenderWareStream
                 ImageLevelData = ImageData;
             }
         }
+
+        //public void Write(SectionHeader header, Stream stream)
+        //{
+        //    SectionHeader.Read(stream);
+        //    var writer = new BinaryWriter(stream);
+
+        //    writer.Write(PlatformID);
+        //    writer.Write((int)FilterFlags);
+        //    writer.Write((byte)WrapV);
+        //    writer.Write((byte)WrapU);
+        //    writer.Write(DiffuseName);
+        //    writer.Write(AlphaName);
+        //    writer.Write((UInt32)Format);
+
+        //    if (PlatformID == 9)
+        //    {
+        //        switch (Compression)
+        //        {
+        //            case CompressionMode.None:
+        //                writer.Write("none");
+        //                break;
+        //            case CompressionMode.DXT1:
+        //                writer.Write("DXT1");
+        //                break;
+        //            case CompressionMode.DXT3:
+        //                writer.Write("DXT3");
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        writer.Write(0x1);
+        //    }
+
+        //    writer.Write(Width);
+        //    writer.Write(Height);
+        //    writer.Write((byte)BPP);
+        //    writer.Write((byte)MipMapCount);
+        //    writer.Write((byte)RasterType);
+
+        //    if (PlatformID == 9)
+        //    {
+        //        writer.Write((byte)0x1);
+        //    }
+        //    else
+        //    {
+        //        writer.Write((byte)Compression);
+        //    }
+        //    writer.Write(ImageDataSize);
+        //    writer.Write(ImageData);
+
+        //    if ((Format & RasterFormat.ExtMipMap) != 0)
+        //    {
+        //        var tot = ImageDataSize;
+        //        for (var i = 0; i < MipMapCount; ++i)
+        //        {
+        //            tot += ImageDataSize >> (2 * i);
+        //        }
+        //        writer.Write(ImageLevelData);
+        //    }
+        //    else
+        //    {
+        //        ImageLevelData = ImageData;
+        //    }
+        //}
     }
 }

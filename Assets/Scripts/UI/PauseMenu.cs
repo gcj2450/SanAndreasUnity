@@ -95,22 +95,22 @@ namespace SanAndreasUnity.UI {
 //			}
 
 			// update cursor lock state and visibility
-			if (Loader.HasLoaded)
-			{
-				if (UIManager.Instance.UseTouchInput)
-				{
-					// unlock the cursor
-					GameManager.ChangeCursorState (false, false);
-					// make it visible while pause menu is opened
-					Cursor.visible = IsOpened;
-				}
-				else
-				{
-					bool shouldBeLocked = !IsOpened;
-					if (GameManager.CursorLocked != shouldBeLocked)
-						GameManager.ChangeCursorState (shouldBeLocked);
-				}
-			}
+			//if (Loader.HasLoaded)
+			//{
+			//	if (UIManager.Instance.UseTouchInput)
+			//	{
+			//		// unlock the cursor
+			//		GameManager.ChangeCursorState (false, false);
+			//		// make it visible while pause menu is opened
+			//		Cursor.visible = IsOpened;
+			//	}
+			//	else
+			//	{
+			//		bool shouldBeLocked = !IsOpened;
+			//		if (GameManager.CursorLocked != shouldBeLocked)
+			//			GameManager.ChangeCursorState (shouldBeLocked);
+			//	}
+			//}
 
 		}
 

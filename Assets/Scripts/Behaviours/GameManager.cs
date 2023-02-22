@@ -89,15 +89,35 @@ namespace SanAndreasUnity.Behaviours {
 		void Update () {
 
 
-			// Fix cursor state if it has been 'broken', happens eg. with zoom gestures in the editor in macOS
-			//if (CursorLocked && ((Cursor.lockState != CursorLockMode.Locked) || (Cursor.visible)))
-			//{
-			//	Cursor.lockState = CursorLockMode.Locked;
-			//	Cursor.visible = false;
-			//}
+            // Fix cursor state if it has been 'broken', happens eg. with zoom gestures in the editor in macOS
+            //if (CursorLocked && ((Cursor.lockState != CursorLockMode.Locked) || (Cursor.visible)))
+            //{
+            //	Cursor.lockState = CursorLockMode.Locked;
+            //	Cursor.visible = false;
+            //}
 
+            //迁移自UIVehicleSpawner================UIVehicleSpawner.cs已删除
+            if (Input.GetKeyDown(KeyCode.V) && CanPlayerReadInput())
+            {
+                if (Ped.Instance != null)
+                {
+                    if (UGameCore.Utilities.NetUtils.IsServer)
+                        Vehicles.Vehicle.CreateRandomInFrontOf(Ped.Instance.transform);
+                    else
+                        Chat.ChatManager.SendChatMessageToAllPlayersAsLocalPlayer("/veh");
+                }
+            }
 
-		}
+            //迁移自CharacterModelChanger.cs================CharacterModelChanger.cs已删除
+            if (Input.GetKeyDown(KeyCode.P) && CanPlayerReadInput())
+            {
+                if (Ped.Instance != null)
+                {
+                    Chat.ChatManager.SendChatMessageToAllPlayersAsLocalPlayer("/skin");
+                }
+            }
+
+        }
 
 		public static bool CanPlayerReadInput() {
 
@@ -105,13 +125,13 @@ namespace SanAndreasUnity.Behaviours {
 
 		}
 
-		public static void ChangeCursorState(bool locked, bool updateVisibility = true)
-		{
-			CursorLocked = locked;
-			Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
-			if (updateVisibility)
-				Cursor.visible = !locked;
-		}
+		//public static void ChangeCursorState(bool locked, bool updateVisibility = true)
+		//{
+		//	CursorLocked = locked;
+		//	Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+		//	if (updateVisibility)
+		//		Cursor.visible = !locked;
+		//}
 
 		public static void ExitApplication() {
 

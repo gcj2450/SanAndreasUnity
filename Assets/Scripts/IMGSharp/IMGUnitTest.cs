@@ -15,7 +15,19 @@ namespace IMGSharpUnitTest
     {
         private void Awake()
         {
-            InitArchives();
+            //当前项目所在目录：D:\GitHub\SanAndreasUnity
+            Debug.Log(Directory.GetCurrentDirectory());
+
+            //gta_int.img 2484个文件
+            //string filepa = "D:/Program Files (x86)/10150500/models/gta_int.img";
+
+            //using (IMGArchive archive = IMGFile.Open(filepa, EIMGArchiveMode.Read))
+            //{
+            //    Debug.Log($"archive gta_int.img==null: {archive == null}");
+            //    Debug.Log($"archive gta_int.img.Entries.Length:{archive.Entries.Length}");
+            //}
+
+            //InitArchives();
         }
 
         /// <summary>

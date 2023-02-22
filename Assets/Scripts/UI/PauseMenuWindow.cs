@@ -287,6 +287,9 @@ namespace SanAndreasUnity.UI {
 			this.IsOpened = !this.IsOpened;
 		}
 
+		/// <summary>
+		/// 以自己的名称注册一个按钮事件
+		/// </summary>
 		public void RegisterInMainMenu ()
 		{
 			if (m_mainMenuEntry != null)

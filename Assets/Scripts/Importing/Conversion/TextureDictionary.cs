@@ -251,7 +251,11 @@ namespace SanAndreasUnity.Importing.Conversion
             }
         }
 
-
+        /// <summary>
+        /// 读取指定名称的.txd后缀文件
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static TextureDictionary Load(string name)
         {
             name = name.ToLower();
@@ -315,6 +319,9 @@ namespace SanAndreasUnity.Importing.Conversion
             }
         }
 
+        /// <summary>
+        /// 纹理图
+        /// </summary>
         private class Texture
         {
             private LoadedTexture _converted;

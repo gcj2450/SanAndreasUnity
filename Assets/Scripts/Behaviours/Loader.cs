@@ -14,6 +14,32 @@ using System.Linq;
 using SanAndreasUnity.Importing.GXT;
 using System.Net.Security;
 
+/*
+cfg：配置文件，存放用户设置、配置数据，游戏里用于存放各种参数，例如载具速度等；
+
+ide：功能同cfg，存储数据参数，例如武器伤害值等；
+
+dat：一般系统会把它识别成媒体文件，这是因为它大多是MPG格式转换成的。
+但SA的dat文件也只是一种广义的配置文件，同cfg和ide，存储数据或记录；
+
+ifp：专属于R星公司开发游戏的文件，存储动作（动画）信息，例如人物走路姿势；
+
+img：对OS熟悉的应该知道，这是一种镜像文件，可以理解成把光盘软盘上的内容压缩归档，变成了这种数字格式。
+SA的img文件有压缩模型文件的，也有压缩动画文件的，可以理解成一些同类文件的压缩文件；（不要忘记SA最早是PS2平台的，有这种奇怪格式的东西并不奇怪）
+
+ico/icn：顾名思义图标文件；
+ipl文件：全称Item Placement File，专属于R星开发游戏的格式，存储各种位置信息，
+例如加特林的刷新地点，一般轮不着我们直接修改，一些地图MOD才会用到；
+
+fxp：这个我没怎么看懂，不过它是用来存储一些特效的，例如开枪的火光和爆炸等；
+
+gxt：字体文件；
+
+dff：一般系统会把它识别成音乐，但SA的dff是3D模型文件，像obj, ply等文件一样存储3D模型信息；
+
+txd：与dff文件配套的贴图文件
+ */
+
 namespace SanAndreasUnity.Behaviours
 {
 
@@ -437,13 +463,16 @@ namespace SanAndreasUnity.Behaviours
         {
             CheckIfGamePathIsCorrect(Config.GamePath);
 
+            //先加载所有的档案文件
             ArchiveManager.LoadLooseArchive(Config.GamePath);
 
             foreach (string imgFilePath in ArchiveManager.GetFilePathsFromLooseArchivesWithExtension(".img"))
             {
+                Debug.Log("imgFilePath: " + imgFilePath);
+                //再加载.img格式的文件
                 ArchiveManager.LoadImageArchive(imgFilePath);
             }
-
+            //这时候有9个IArchive文件，一个LooseArchive和8个ImageArchive
             Debug.Log($"gcj: num archives loaded: {ArchiveManager.GetNumArchives()}, num entries loaded: {ArchiveManager.GetTotalNumLoadedEntries()}");
 
         }

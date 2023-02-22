@@ -1,4 +1,4 @@
-using Autodesk.Fbx;
+锘縰sing Autodesk.Fbx;
 using SanAndreasUnity.Behaviours.World;
 using System;
 using System.Collections;
@@ -16,6 +16,9 @@ public class TestMenuItem : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Dictionary<string, int> asd = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
+        //asd.Add("candy", 1);
+        //asd.Add("Candy", 1);
     }
 
     // Update is called once per frame
@@ -33,7 +36,7 @@ public class TestMenuItem : MonoBehaviour
     }
 
     /// <summary>
-    /// 会将Transform下的所有子物体都导出FBX
+    /// 浼氬皢Transform涓嬬殑鎵�鏈夊瓙鐗╀綋閮藉鍑篎BX
     /// </summary>
     /// <returns></returns>
     IEnumerator exportFbx()
@@ -72,7 +75,7 @@ public class TestMenuItem : MonoBehaviour
                 // asset folder view.
                 AssetDatabase.Refresh();
 
-                //替换选中的模型Mesh=======================
+                //鏇挎崲閫変腑鐨勬ā鍨婱esh=======================
                 //GameObject obj =
                 //    (GameObject)AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/" + filename + ".fbx");
                 //if (obj == null)
@@ -83,7 +86,7 @@ public class TestMenuItem : MonoBehaviour
 
                 //go.GetComponent<MeshFilter>().sharedMesh = obj.GetComponent<MeshFilter>().sharedMesh;
 
-                //替换选中的模型Mesh End=======================
+                //鏇挎崲閫変腑鐨勬ā鍨婱esh End=======================
 
                 Debug.Log("OnExportOK: " + filePath);
             }

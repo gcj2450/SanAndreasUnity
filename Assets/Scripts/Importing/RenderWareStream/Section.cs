@@ -61,6 +61,9 @@ namespace SanAndreasUnity.Importing.RenderWareStream
         }
     }
 
+    /// <summary>
+    /// 图片，模型等各种类型的数据基类
+    /// </summary>
     public abstract class SectionData
     {
         private delegate SectionData CtorDelegate(SectionHeader header, Stream stream);

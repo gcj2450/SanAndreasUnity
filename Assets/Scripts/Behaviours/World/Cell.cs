@@ -241,7 +241,7 @@ namespace SanAndreasUnity.Behaviours.World
 			// find existing objects
 
 			var existingObjects = new Dictionary<string, object>(this.transform.childCount);
-
+			//Debug.Log("existingObjects: " + existingObjects.Count);	//这时候是0个
 			foreach(var sg in this.gameObject.GetFirstLevelChildrenSingleComponent<StaticGeometry>())
             {
 				string key = GetKey(sg);

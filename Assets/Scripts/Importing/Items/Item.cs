@@ -23,6 +23,10 @@ namespace SanAndreasUnity.Importing.Items
         private static readonly Dictionary<int, List<Placement>> _placements
             = new Dictionary<int, List<Placement>>();
 
+        /// <summary>
+        /// 读取需要加载的列表.dat文件，这里主要是gta.dat文件
+        /// </summary>
+        /// <param name="path"></param>
         public static void ReadLoadList(string path)
         {
             var ws = new[] { ' ', '\t' };
@@ -64,6 +68,10 @@ namespace SanAndreasUnity.Importing.Items
             }
         }
 
+        /// <summary>
+        /// 读取Ide文件放到_definitions中
+        /// </summary>
+        /// <param name="path"></param>
         public static void ReadIde(string path)
         {
             var file = new ItemFile<Definition>(path);
@@ -80,6 +88,11 @@ namespace SanAndreasUnity.Importing.Items
             }
         }
 
+        /// <summary>
+        /// 读取IPL文件，读取zone放到_zones中，读取enex放到_enexes中
+        /// 汽车和inst放到_placements中
+        /// </summary>
+        /// <param name="path"></param>
         public static void ReadIpl(string path)
         {
             //读取data/maps/下所有的.ipl文件

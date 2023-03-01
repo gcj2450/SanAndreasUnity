@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SanAndreasUnity.Importing.Items.Placements
 {
     /// <summary>
-    /// 汽车
+    /// 汽车类
     /// </summary>
     [Section("cars")]
     public class ParkedVehicle : Placement
@@ -33,6 +33,10 @@ namespace SanAndreasUnity.Importing.Items.Placements
             Colors[3] = -1;
         }
 
+        /// <summary>
+        /// 使用字符串解析汽车参数
+        /// </summary>
+        /// <param name="line"></param>
         public ParkedVehicle(string line)
             : base(line)
         {
@@ -56,6 +60,10 @@ namespace SanAndreasUnity.Importing.Items.Placements
             LockedProbability = GetInt(9) / 100f;
         }
 
+        /// <summary>
+        /// 汽车构造函数
+        /// </summary>
+        /// <param name="reader">BinaryReader</param>
         public ParkedVehicle(BinaryReader reader)
             : base(reader)
         {

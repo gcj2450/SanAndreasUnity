@@ -202,7 +202,7 @@ namespace SanAndreasUnity.Behaviours
         {
             if (IsLoading)
                 return;
-
+            Debug.Log("AAAAAAAAA");
             CleanupState();
             IsLoading = true;
             //添加加载步骤
@@ -546,7 +546,13 @@ namespace SanAndreasUnity.Behaviours
 
         private static void StepLoadItemInfo()
         {
-            
+            //"item_paths": [
+            //"${game_dir}/data/gta.dat",
+            //"${game_dir}/data/vehicles.ide",
+            //"${game_dir}/data/peds.ide",
+            //"${game_dir}/data/default.ide"
+            //]
+            //循环gta.dat，vehicles.ide，peds.ide，default.ide四个文件
             foreach (var p in Config.GetPaths("item_paths"))
             {
                 Debug.Log($"gcj: StepLoadItemInfo: {p}");
@@ -555,6 +561,7 @@ namespace SanAndreasUnity.Behaviours
                 switch (ext)
                 {
                     case ".dat":
+                        //读取gta.dat
                         Item.ReadLoadList(path);
                         break;
 

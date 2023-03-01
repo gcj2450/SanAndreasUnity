@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SanAndreasUnity.Behaviours.WorldSystem
 {
     /// <summary>
-    /// 世界系统参数，包含尺寸和每个轴向区域数
+    /// 世界系统参数，包含worldSize和numAreasPerAxis
     /// </summary>
     public struct WorldSystemParams
     {
@@ -22,7 +22,9 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
     }
 
     /// <summary>
-    /// 世界系统接口
+    /// 世界系统接口，Update，RegisterFocusPoint，
+    /// UnRegisterFocusPoint，FocusPointChangedParameters，
+    /// GetAreaIndex
     /// </summary>
     public interface IWorldSystem
     {
@@ -58,7 +60,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
     }
 
     /// <summary>
-    /// 世界系统接口
+    /// 世界系统接口，AddObjectToArea，RemoveObjectFromArea
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IWorldSystem<T> : IWorldSystem
@@ -66,19 +68,19 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         /// <summary>
         /// 向区域添加物体
         /// </summary>
-        /// <param name="pos"></param>
+        /// <param name="pos">物体位置</param>
         /// <param name="obj"></param>
         void AddObjectToArea(Vector3 pos, T obj);
         /// <summary>
         /// 从区域移除物体
         /// </summary>
-        /// <param name="pos"></param>
+        /// <param name="pos">物体位置</param>
         /// <param name="obj"></param>
         void RemoveObjectFromArea(Vector3 pos, T obj);
     }
 
     /// <summary>
-    /// 世界系统扩展方法
+    /// 世界系统扩展方法，注视点更改位置，注视点更改半径
     /// </summary>
     public static class WorldSystemExtensions
     {
@@ -111,6 +113,11 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         public float Radius { get; internal set; }
         public Vector3 Position { get; internal set; }
 
+        /// <summary>
+        /// 注视点构造函数
+        /// </summary>
+        /// <param name="radius">半径</param>
+        /// <param name="position">位置</param>
         public FocusPoint(float radius, Vector3 position)
         {
             this.Radius = radius;
@@ -124,7 +131,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
     }
 
     /// <summary>
-    /// 区域索引，x,y,z
+    /// 区域索引，short x,short y,short z
     /// </summary>
     public struct AreaIndex
     {
@@ -153,9 +160,12 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         /// worldsystem列表
         /// </summary>
         public IReadOnlyList<WorldSystem<T>> WorldSystems => _worldSystems;
+        /// <summary>
+        /// /距离分级
+        /// </summary>
         private readonly float[] _distanceLevels;
         /// <summary>
-        /// 距离Level，必须是升序的
+        /// 距离分级，必须是升序的
         /// </summary>
         public IReadOnlyList<float> DistanceLevels => _distanceLevels;
         /// <summary>
@@ -392,7 +402,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
 
             internal HashSet<FocusPoint> focusPointsThatSeeMe;
             /// <summary>
-            /// 看到自己的注视点
+            /// 能看到自己的注视点
             /// </summary>
             public IReadOnlyCollection<FocusPoint> FocusPointsThatSeeMe => this.focusPointsThatSeeMe;
             /// <summary>

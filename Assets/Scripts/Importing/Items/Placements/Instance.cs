@@ -19,7 +19,7 @@ namespace SanAndreasUnity.Importing.Items.Placements
     }
 
     /// <summary>
-    /// 可放置的实例
+    /// 可放置的实例继承自Placement
     /// </summary>
     [Section("inst")]
     public class Instance : Placement

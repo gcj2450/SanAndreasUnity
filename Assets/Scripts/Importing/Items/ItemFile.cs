@@ -13,6 +13,9 @@ using UnityEngine;
 
 namespace SanAndreasUnity.Importing.Items
 {
+    /// <summary>
+    /// Section属性，包含string Section字段
+    /// </summary>
     public class SectionAttribute : Attribute
     {
         public readonly string Section;
@@ -38,6 +41,12 @@ namespace SanAndreasUnity.Importing.Items
         /// </summary>
         public int Parts { get { return _parts.Length; } }
 
+        /// <summary>
+        /// 根据line字符串获取部件，是否使用逗号分隔符
+        /// 否则就使用tab制表符和空格作为分隔符
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="commaSeparated"></param>
         protected ItemBase(string line, bool commaSeparated = true)
         {
             var ws = new[] { ' ', '\t' };
@@ -105,7 +114,7 @@ namespace SanAndreasUnity.Importing.Items
     }
 
     /// <summary>
-    /// 定义
+    /// 完全继承自ItemBase的Definition
     /// </summary>
     public abstract class Definition : ItemBase
     {
@@ -114,7 +123,7 @@ namespace SanAndreasUnity.Importing.Items
     }
 
     /// <summary>
-    /// 物体基类接口
+    /// 物体基类接口，仅包含ID字段
     /// </summary>
     public interface IObjectDefinition
     {
@@ -125,7 +134,7 @@ namespace SanAndreasUnity.Importing.Items
     }
 
     /// <summary>
-    /// 可放置的物体
+    /// 可放置的物体完全继承自ItemBase
     /// </summary>
     public abstract class Placement : ItemBase
     {
@@ -136,6 +145,10 @@ namespace SanAndreasUnity.Importing.Items
             : base(reader) { }
     }
 
+    /// <summary>
+    /// Item文件，TType继承自ItemBase
+    /// </summary>
+    /// <typeparam name="TType"></typeparam>
     public class ItemFile<TType>
         where TType : ItemBase
     {
@@ -172,6 +185,10 @@ namespace SanAndreasUnity.Importing.Items
         private readonly Dictionary<string, List<TType>> _sections
             = new Dictionary<string, List<TType>>();
 
+        /// <summary>
+        /// 构造函数，使用Archive.ArchiveManager读取文件，进行解析
+        /// </summary>
+        /// <param name="path">文件完全路径</param>
         public ItemFile(string path)
         {
             string fileName = Path.GetFileName(path);
@@ -191,11 +208,19 @@ namespace SanAndreasUnity.Importing.Items
             }
         }
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="reader">该文件的文件流</param>
         public ItemFile(StreamReader reader)
         {
             Load(reader);
         }
 
+        /// <summary>
+        /// 根据文件流解析文件
+        /// </summary>
+        /// <param name="reader"></param>
         void Load(StreamReader reader)
         {
             
@@ -251,6 +276,11 @@ namespace SanAndreasUnity.Importing.Items
             
         }
 
+        /// <summary>
+        /// 使用流读取Item文件，如果开头四个字符不是bnry，报错不是binary IPL文件
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <exception cref="Exception"></exception>
         public ItemFile(Stream stream)
         {
             var reader = new BinaryReader(stream);

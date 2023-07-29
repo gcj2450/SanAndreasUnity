@@ -173,6 +173,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         /// </summary>
         private readonly Dictionary<long, FocusPoint[]> _focusPointsPerLevel = new Dictionary<long, FocusPoint[]>();
 
+        //distanceLevels生成WorldSystem
         public WorldSystemWithDistanceLevels(
             float[] distanceLevels,
             WorldSystemParams[] worldSystemParamsXZ,
@@ -251,7 +252,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
                 _worldSystems[i].UnRegisterFocusPoint(focusPoints[i]);
         }
         /// <summary>
-        /// 注视点更改参数
+        /// 注视点更改参数，玩家位置移动会执行这里
         /// </summary>
         /// <param name="focusPoint"></param>
         /// <param name="newPos"></param>
@@ -378,39 +379,44 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
     public class WorldSystem<T> : IWorldSystem<T>
     {
         /// <summary>
-        /// 区域
+        /// 区域，有索引和物体列表，并被标记是否需要更新，有可见到该区域的FocusPoint列表
         /// </summary>
         public class Area
         {
             /// <summary>
-            /// 自增索引
+            /// ID
             /// </summary>
             public long Id { get; } = AreaIdGenerator.GetNextId();
             /// <summary>
-            /// 区域索引
+            /// 区域坐标索引
             /// </summary>
             public AreaIndex AreaIndex { get; }
             /// <summary>
             /// 世界系统
             /// </summary>
             public WorldSystem<T> WorldSystem { get; }
+            /// <summary>
+            /// 该区域内物体列表
+            /// </summary>
             internal List<T> objectsInside;
             /// <summary>
             /// 区域内物体列表
             /// </summary>
             public IReadOnlyList<T> ObjectsInside => this.objectsInside;
-
+            /// <summary>
+            /// 可看到该区域的FocusPoint列表
+            /// </summary>
             internal HashSet<FocusPoint> focusPointsThatSeeMe;
             /// <summary>
-            /// 能看到自己的注视点
+            /// 可看到该区域的FocusPoint列表
             /// </summary>
             public IReadOnlyCollection<FocusPoint> FocusPointsThatSeeMe => this.focusPointsThatSeeMe;
             /// <summary>
-            /// 被标记为用于更新
+            /// 被标记是否需要更新
             /// </summary>
             internal bool isMarkedForUpdate;
             /// <summary>
-            /// 上次更新时看见
+            /// 上次更新时已可见
             /// </summary>
             public bool WasVisibleInLastUpdate { get; internal set; } = false;
             /// <summary>
@@ -426,7 +432,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         }
 
         /// <summary>
-        /// 范围
+        /// 线段范围
         /// </summary>
         private struct Range
         {
@@ -479,7 +485,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         }
 
         /// <summary>
-        /// 范围块
+        /// 体积范围
         /// </summary>
         private struct AreaIndexes
         {
@@ -542,7 +548,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         //     public static NewAreasResult WithOne(AreaIndexes areaIndexes) => new NewAreasResult { x = (areaIndexes, true) };
         // }
         /// <summary>
-        /// 轴向上影响的范围
+        /// 轴向上影响Range
         /// </summary>
         private struct AffectedRangesForAxis
         {
@@ -628,7 +634,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         /// </summary>
         public IReadOnlyCollection<FocusPoint> FocusPoints => _focusPoints;
         /// <summary>
-        /// 需要更新的区域
+        /// 待更新区域列表
         /// </summary>
         private readonly List<Area> _areasForUpdate = new List<Area>(128);
 
@@ -744,7 +750,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         }
 
         /// <summary>
-        /// 注视点更改参数
+        /// FocusPoint变动事件
         /// </summary>
         /// <param name="focusPoint"></param>
         /// <param name="newPos"></param>
@@ -897,11 +903,24 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             this.ForEachAreaInRadius(pos, radius, false, action);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="radius"></param>
+        /// <param name="createIfNotExists"></param>
+        /// <param name="action"></param>
         private void ForEachAreaInRadius(Vector3 pos, float radius, bool createIfNotExists, System.Action<Area> action)
         {
             this.ForEachArea(GetAreaIndexesInRadius(pos, radius), createIfNotExists, action);
         }
 
+        /// <summary>
+        /// 根据位置和半径获取Area列表
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
         public List<Area> GetAreasInRadius(Vector3 pos, float radius)
         {
             var areas = new List<Area>();
@@ -909,6 +928,12 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return areas;
         }
 
+        /// <summary>
+        /// 循环AreaIndexes内的所有Area
+        /// </summary>
+        /// <param name="areaIndexes"></param>
+        /// <param name="createIfNotExists">不存在是否创建</param>
+        /// <param name="action">回调事件</param>
         private void ForEachArea(AreaIndexes areaIndexes, bool createIfNotExists, System.Action<Area> action)
         {
             for (short x = areaIndexes.x.lower; x <= areaIndexes.x.higher; x++)
@@ -932,7 +957,14 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
                 }
             }
         }
-
+        
+        /// <summary>
+        /// 根据位置和半径，获取一个区域范围
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         private AreaIndexes GetAreaIndexesInRadius(Vector3 pos, float radius)
         {
             if (radius < 0)
@@ -949,6 +981,11 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             };
         }
 
+        /// <summary>
+        /// 获取轴向索引XZ向
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         private short GetAreaIndex(float pos)
         {
             if (pos < _xzAxisInfo.worldMin)
@@ -960,6 +997,11 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return (short) (1 + Mathf.FloorToInt((pos + _xzAxisInfo.worldHalfSize) / _xzAxisInfo.areaSize));
         }
 
+        /// <summary>
+        /// 获取Y轴向上的区域索引
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         private short GetAreaIndexForYAxis(float pos)
         {
             if (pos < _yAxisInfo.worldMin)
@@ -971,11 +1013,22 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return (short) (1 + Mathf.FloorToInt((pos + _yAxisInfo.worldHalfSize) / _yAxisInfo.areaSize));
         }
 
+        /// <summary>
+        /// 根据位置获取区域索引
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         public AreaIndex GetAreaIndex(Vector3 pos)
         {
             return new AreaIndex(GetAreaIndex(pos.x), GetAreaIndexForYAxis(pos.y), GetAreaIndex(pos.z));
         }
 
+        /// <summary>
+        /// 获取区域中心点
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public Vector3 GetAreaCenter(Area area)
         {
             Vector3 center = new Vector3(
@@ -990,6 +1043,11 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return center;
         }
 
+        /// <summary>
+        /// 获取区域xz平面中心点
+        /// </summary>
+        /// <param name="indexForAxis"></param>
+        /// <returns></returns>
         private float GetAreaCenterForXZAxis(short indexForAxis)
         {
             if (indexForAxis <= 0) // left infinity
@@ -1001,6 +1059,11 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return _xzAxisInfo.areaSize * (indexForAxis - 1) - _xzAxisInfo.worldHalfSize + _xzAxisInfo.areaSize * 0.5f;
         }
 
+        /// <summary>
+        /// 获取区域 Y轴中心点
+        /// </summary>
+        /// <param name="indexForAxis"></param>
+        /// <returns></returns>
         private float GetAreaCenterForYAxis(short indexForAxis)
         {
             if (indexForAxis <= 0) // left infinity
@@ -1012,6 +1075,12 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return _yAxisInfo.areaSize * (indexForAxis - 1) - _yAxisInfo.worldHalfSize + _yAxisInfo.areaSize * 0.5f;
         }
 
+        /// <summary>
+        /// 获取区域，不存在就创建
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="createIfNotExists"></param>
+        /// <returns></returns>
         private Area GetAreaAt(Vector3 pos, bool createIfNotExists)
         {
             var index = this.GetAreaIndex(pos);
@@ -1024,11 +1093,21 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return area;
         }
 
+        /// <summary>
+        /// 获取区域
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         public Area GetAreaAt(Vector3 pos)
         {
             return this.GetAreaAt(pos, false);
         }
 
+        /// <summary>
+        ///获取索引
+        /// </summary>
+        /// <param name="areaIndex"></param>
+        /// <returns></returns>
         public Area GetAreaAt(AreaIndex areaIndex)
         {
             return _areas[areaIndex.x, areaIndex.y, areaIndex.z];
@@ -1239,7 +1318,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         }
 
         /// <summary>
-        /// 区域需要可见
+        /// 该区域点否可见，看到该区域的FocusPoint数量大于0
         /// </summary>
         /// <param name="area"></param>
         /// <returns></returns>
@@ -1248,7 +1327,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
             return area.focusPointsThatSeeMe != null && area.focusPointsThatSeeMe.Count > 0;
         }
         /// <summary>
-        /// 标记区域用于更新
+        /// 将该区域标记为待更新
         /// </summary>
         /// <param name="area"></param>
         private void MarkAreaForUpdate(Area area)
@@ -1266,7 +1345,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         }
 
         /// <summary>
-        /// 添加看到自己的注视点
+        /// 将FocusPoint添加到看到自己的FocusPoint列表
         /// </summary>
         /// <param name="area"></param>
         /// <param name="focusPoint"></param>
@@ -1318,7 +1397,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
         }
 
         /// <summary>
-        /// 如果在更新，报错
+        ///如果 _isInUpdate，报错
         /// </summary>
         /// <exception cref="ConcurrentModificationException"></exception>
         private void ThrowIfConcurrentModification()
@@ -1327,7 +1406,7 @@ namespace SanAndreasUnity.Behaviours.WorldSystem
                 throw new ConcurrentModificationException();
         }
         /// <summary>
-        /// 通知区域更改可见度
+        /// 发送该区域可见度变更事件
         /// </summary>
         /// <param name="area"></param>
         /// <param name="visible"></param>

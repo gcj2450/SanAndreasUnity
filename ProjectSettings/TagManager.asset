@@ -7,6 +7,10 @@ TagManager:
   - Minimap
   - UI
   - Fire
+  - SceneStreamer
+  - WorldMover
+  - ColliderStreamerManager
+  - Ground
   layers:
   - Default
   - TransparentFX

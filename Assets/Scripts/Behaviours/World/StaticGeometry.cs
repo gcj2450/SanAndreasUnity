@@ -231,7 +231,7 @@ namespace SanAndreasUnity.Behaviours.World
 			
 			//添加碰撞器
 			Profiler.BeginSample("Attach collision", this);
-			Debug.Log($"gcj:Attach collision: {this.ObjectDefinition.ModelName}");
+			//Debug.Log($"gcj:Attach collision: {this.ObjectDefinition.ModelName}");
 			Importing.Conversion.CollisionModel.Load(this.ObjectDefinition.ModelName, this.transform, false);
 			Profiler.EndSample();
 
@@ -262,7 +262,7 @@ namespace SanAndreasUnity.Behaviours.World
 		private void AddRenderingParts(Geometry.GeometryParts geoms)
         {
 			Profiler.BeginSample("Add mesh", this);
-			Debug.Log($"gcj: StaticGemoetry AddRenderingParts: {gameObject.name}");
+			//Debug.Log($"gcj: StaticGemoetry AddRenderingParts: {gameObject.name}");
 			var mf = gameObject.AddComponent<MeshFilter>();
 			var mr = gameObject.AddComponent<MeshRenderer>();
 

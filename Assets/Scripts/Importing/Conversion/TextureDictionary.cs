@@ -2,6 +2,7 @@
 using SanAndreasUnity.Importing.RenderWareStream;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -229,9 +230,71 @@ namespace SanAndreasUnity.Importing.Conversion
             }
 
             tex.LoadRawTextureData(data);
-            tex.Apply(loadMips || autoMips, textureLoadParams.makeNoLongerReadable);
+            tex.Apply(loadMips || autoMips, false);
 
             return new LoadedTexture(tex, src.Alpha);
+        }
+
+        //将NativeTexture导出成图片，需要两个参数是来自同一个文件
+        void ExportExture(Texture2D tex, TextureNative src)
+        {
+
+            RenderTexture pauseRenderTexture = RenderTexture.GetTemporary(tex.width, tex.height);
+
+            Graphics.Blit(tex, pauseRenderTexture);
+
+            //byte[] bytes = pauseRenderTexture.EncodeToPNG();
+
+
+            var ddd = new Texture(src);
+
+            string pngName = "";
+            if (ddd.IsDiffuse)
+            {
+                pngName = ddd.DiffuseName;
+            }
+            else if (ddd.IsAlpha)
+            {
+                pngName = ddd.AlphaName;
+            }
+            if (!File.Exists(Application.dataPath + "/ddd/" + pngName + ".png"))
+            {
+                SaveRenderToPng(pauseRenderTexture, "ddd", pngName);
+            }
+            //string dir = Application.dataPath + "/ddd/";
+            //if (!Directory.Exists(dir))
+            //{
+            //    Directory.CreateDirectory(dir);
+            //}
+            //string path = Path.Combine(dir, pngName + ".png");
+
+            //FileStream file = File.Open(path, FileMode.Create);
+
+            //BinaryWriter writer = new BinaryWriter(file);
+
+            //writer.Write(bytes);
+            //file.Close();
+        }
+
+        static public Texture2D SaveRenderToPng(RenderTexture renderT, string folderName, string name)
+        {
+            int width = renderT.width;
+            int height = renderT.height;
+            Texture2D tex2d = new Texture2D(width, height, TextureFormat.ARGB32, false);
+            RenderTexture.active = renderT;
+            tex2d.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            tex2d.Apply();
+
+            byte[] b = tex2d.EncodeToPNG();
+            string sysPath =Application.dataPath+"/" + folderName;
+            if (!Directory.Exists(sysPath))
+                Directory.CreateDirectory(sysPath);
+            FileStream file = File.Open(sysPath + "/" + name  + ".png", FileMode.Create);
+            BinaryWriter writer = new BinaryWriter(file);
+            writer.Write(b);
+            file.Close();
+
+            return tex2d;
         }
 
 
@@ -395,11 +458,10 @@ namespace SanAndreasUnity.Importing.Conversion
                             tex.AlphaName, tex.DiffuseName, _alpha[tex.AlphaName].DiffuseName);
                         continue;
                     }
-
                     _alpha.Add(tex.AlphaName, tex);
                 }
             }
-            Debug.Log($"gcj: TextureDictionary _diffuse Count: {_diffuse.Count} , _alpha Count: {_alpha.Count}");
+            //Debug.Log($"gcj: TextureDictionary _diffuse Count: {_diffuse.Count} , _alpha Count: {_alpha.Count}");
         }
 
         public TextureNative GetDiffuseNative(string name)
